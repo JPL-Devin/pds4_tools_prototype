@@ -1,0 +1,43 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Public+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-nasa-gray-900 text-nasa-gray-50 font-body;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-heading font-semibold;
+  }
+
+  code,
+  pre {
+    @apply font-mono;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-nasa-blue hover:bg-nasa-blue-darker text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
+  }
+
+  .btn-secondary {
+    @apply bg-nasa-gray-700 hover:bg-nasa-gray-600 text-nasa-gray-50 font-medium py-2 px-4 rounded-lg border border-nasa-gray-500 transition-colors duration-200;
+  }
+
+  .card {
+    @apply bg-nasa-gray-800 rounded-xl border border-nasa-gray-700 p-4;
+  }
+
+  .input-field {
+    @apply bg-nasa-gray-800 border border-nasa-gray-600 text-nasa-gray-50 rounded-lg px-3 py-2 focus:outline-none focus:border-nasa-blue focus:ring-1 focus:ring-nasa-blue;
+  }
+}
