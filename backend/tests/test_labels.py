@@ -14,7 +14,7 @@ def test_upload_label_success(client, table_character_xml, table_character_tab):
             "/api/labels/upload",
             files={
                 "label_file": (table_character_xml.name, lf, "application/xml"),
-                "data_file": (table_character_tab.name, df, "application/octet-stream"),
+                "data_files": (table_character_tab.name, df, "application/octet-stream"),
             },
         )
     assert resp.status_code == 200
@@ -39,7 +39,7 @@ def test_list_labels(client, table_character_xml, table_character_tab):
             "/api/labels/upload",
             files={
                 "label_file": (table_character_xml.name, lf, "application/xml"),
-                "data_file": (table_character_tab.name, df, "application/octet-stream"),
+                "data_files": (table_character_tab.name, df, "application/octet-stream"),
             },
         )
     resp = client.get("/api/labels")
@@ -54,7 +54,7 @@ def test_get_label_detail(client, table_character_xml, table_character_tab):
             "/api/labels/upload",
             files={
                 "label_file": (table_character_xml.name, lf, "application/xml"),
-                "data_file": (table_character_tab.name, df, "application/octet-stream"),
+                "data_files": (table_character_tab.name, df, "application/octet-stream"),
             },
         )
     label_id = upload_resp.json()["label_id"]
@@ -72,7 +72,7 @@ def test_get_structures(client, table_character_xml, table_character_tab):
             "/api/labels/upload",
             files={
                 "label_file": (table_character_xml.name, lf, "application/xml"),
-                "data_file": (table_character_tab.name, df, "application/octet-stream"),
+                "data_files": (table_character_tab.name, df, "application/octet-stream"),
             },
         )
     label_id = upload_resp.json()["label_id"]

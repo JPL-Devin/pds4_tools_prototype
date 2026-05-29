@@ -6,42 +6,84 @@ interface FileUploadProps {
   onSuccess: (result: LabelUploadResponse) => void;
 }
 
+const LABEL_EXTS = new Set(["xml", "lblx"]);
+
+function getExt(name: string): string {
+  return name.split(".").pop()?.toLowerCase() ?? "";
+}
+
 export default function FileUpload({ onSuccess }: FileUploadProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const labelInputRef = useRef<HTMLInputElement>(null);
-  const dataInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [labelFile, setLabelFile] = useState<File | null>(null);
-  const [dataFile, setDataFile] = useState<File | null>(null);
+  const [dataFiles, setDataFiles] = useState<File[]>([]);
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    const files = Array.from(e.dataTransfer.files);
-    categorizeFiles(files);
-  }, []);
+  const categorizeFiles = useCallback((files: File[]) => {
+    let label: File | null = null;
+    const data: File[] = [];
 
-  const categorizeFiles = (files: File[]) => {
     for (const file of files) {
-      const ext = file.name.split(".").pop()?.toLowerCase();
-      if (ext === "xml" || ext === "lblx") {
-        setLabelFile(file);
+      if (LABEL_EXTS.has(getExt(file.name))) {
+        if (!label) label = file;
       } else {
-        setDataFile(file);
+        data.push(file);
       }
     }
-  };
+
+    if (label) {
+      setLabelFile(label);
+      setDataFiles(data);
+      setError(null);
+    } else if (files.length > 0) {
+      setError("No .xml or .lblx label file found in selection");
+    }
+  }, []);
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      setIsDragging(false);
+
+      const items = e.dataTransfer.items;
+      if (items && items.length > 0) {
+        const entries: FileSystemEntry[] = [];
+        for (let i = 0; i < items.length; i++) {
+          const entry = items[i].webkitGetAsEntry?.();
+          if (entry) entries.push(entry);
+        }
+
+        if (entries.some((e) => e.isDirectory)) {
+          readDirectoryEntries(entries).then(categorizeFiles);
+          return;
+        }
+      }
+
+      const files = Array.from(e.dataTransfer.files);
+      categorizeFiles(files);
+    },
+    [categorizeFiles],
+  );
+
+  const handleFileSelect = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const files = Array.from(e.target.files ?? []);
+      categorizeFiles(files);
+      e.target.value = "";
+    },
+    [categorizeFiles],
+  );
 
   const handleUpload = async () => {
     if (!labelFile) return;
     setIsUploading(true);
     setError(null);
     try {
-      const result = await uploadLabel(labelFile, dataFile ?? undefined);
+      const result = await uploadLabel(labelFile, dataFiles);
       onSuccess(result);
       setLabelFile(null);
-      setDataFile(null);
+      setDataFiles([]);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed");
     } finally {
@@ -66,20 +108,20 @@ export default function FileUpload({ onSuccess }: FileUploadProps) {
         }}
         onDragLeave={() => setIsDragging(false)}
         onDrop={handleDrop}
-        onClick={() => labelInputRef.current?.click()}
+        onClick={() => fileInputRef.current?.click()}
       >
         <p className="text-sm text-nasa-gray-400">
-          Drop .xml / .lblx label here
+          Drop label + data files here
+        </p>
+        <p className="text-xs text-nasa-gray-500 mt-1">
+          Select all files referenced by the label, or drop a folder
         </p>
         <input
-          ref={labelInputRef}
+          ref={fileInputRef}
           type="file"
-          accept=".xml,.lblx"
+          multiple
           className="hidden"
-          onChange={(e) => {
-            const f = e.target.files?.[0];
-            if (f) setLabelFile(f);
-          }}
+          onChange={handleFileSelect}
         />
       </div>
 
@@ -88,24 +130,18 @@ export default function FileUpload({ onSuccess }: FileUploadProps) {
           <p>
             Label: <span className="text-white">{labelFile.name}</span>
           </p>
-          <div className="flex items-center gap-2">
-            <span className="text-nasa-gray-400">Data file (optional):</span>
-            <button
-              className="text-nasa-blue text-xs underline"
-              onClick={() => dataInputRef.current?.click()}
-            >
-              {dataFile ? dataFile.name : "Select"}
-            </button>
-            <input
-              ref={dataInputRef}
-              type="file"
-              className="hidden"
-              onChange={(e) => {
-                const f = e.target.files?.[0];
-                if (f) setDataFile(f);
-              }}
-            />
-          </div>
+          {dataFiles.length > 0 ? (
+            <p>
+              Data:{" "}
+              <span className="text-white">
+                {dataFiles.map((f) => f.name).join(", ")}
+              </span>
+            </p>
+          ) : (
+            <p className="text-red-400">
+              No data files selected — data files are required alongside the label
+            </p>
+          )}
         </div>
       )}
 
@@ -119,9 +155,33 @@ export default function FileUpload({ onSuccess }: FileUploadProps) {
         </button>
       )}
 
-      {error && (
-        <p className="text-nasa-red text-xs">{error}</p>
-      )}
+      {error && <p className="text-nasa-red text-xs">{error}</p>}
     </div>
   );
+}
+
+async function readDirectoryEntries(entries: FileSystemEntry[]): Promise<File[]> {
+  const files: File[] = [];
+
+  async function readEntry(entry: FileSystemEntry): Promise<void> {
+    if (entry.isFile) {
+      const file = await new Promise<File>((resolve) =>
+        (entry as FileSystemFileEntry).file(resolve),
+      );
+      files.push(file);
+    } else if (entry.isDirectory) {
+      const dirReader = (entry as FileSystemDirectoryEntry).createReader();
+      const children = await new Promise<FileSystemEntry[]>((resolve) =>
+        dirReader.readEntries(resolve),
+      );
+      for (const child of children) {
+        await readEntry(child);
+      }
+    }
+  }
+
+  for (const entry of entries) {
+    await readEntry(entry);
+  }
+  return files;
 }

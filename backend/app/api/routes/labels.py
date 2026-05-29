@@ -18,8 +18,16 @@ UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 
 @router.post("/upload", response_model=LabelUploadResponse)
-async def upload_label(label_file: UploadFile, data_file: UploadFile | None = None) -> LabelUploadResponse:
-    """Upload a PDS4 label file (XML/LBLX) and optionally its associated data file."""
+async def upload_label(
+    label_file: UploadFile,
+    data_files: list[UploadFile] = [],
+) -> LabelUploadResponse:
+    """Upload a PDS4 label file (XML/LBLX) and its associated data files.
+
+    Drop a label + all referenced data files together. The label's XML
+    specifies data filenames via <File><file_name>, so the uploaded data
+    files are matched by name automatically.
+    """
     if not label_file.filename:
         raise HTTPException(status_code=400, detail="No label file provided")
 
@@ -34,10 +42,11 @@ async def upload_label(label_file: UploadFile, data_file: UploadFile | None = No
     with open(label_path, "wb") as f:
         shutil.copyfileobj(label_file.file, f)
 
-    if data_file and data_file.filename:
-        data_path = session_dir / data_file.filename
-        with open(data_path, "wb") as f:
-            shutil.copyfileobj(data_file.file, f)
+    for df in data_files:
+        if df.filename:
+            data_path = session_dir / df.filename
+            with open(data_path, "wb") as f:
+                shutil.copyfileobj(df.file, f)
 
     try:
         parsed = parse_label(label_path)
@@ -58,6 +67,19 @@ async def upload_label(label_file: UploadFile, data_file: UploadFile | None = No
         )
         for s in parsed["structures"]
     ]
+
+    missing_files = []
+    xml_dir = label_path.parent
+    for fname in parsed.get("referenced_data_files", []):
+        if not (xml_dir / fname).exists():
+            missing_files.append(fname)
+
+    if missing_files:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Missing required data files referenced by label: {', '.join(missing_files)}. "
+            "Upload them alongside the label file.",
+        )
 
     return LabelUploadResponse(
         label_id=label_id,

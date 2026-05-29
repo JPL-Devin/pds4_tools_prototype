@@ -104,12 +104,14 @@ export interface ImageRenderParams {
 
 export async function uploadLabel(
   labelFile: File,
-  dataFile?: File,
+  dataFiles?: File[],
 ): Promise<LabelUploadResponse> {
   const form = new FormData();
   form.append("label_file", labelFile);
-  if (dataFile) {
-    form.append("data_file", dataFile);
+  if (dataFiles) {
+    for (const df of dataFiles) {
+      form.append("data_files", df);
+    }
   }
   const resp = await fetch(`${API_BASE}/labels/upload`, {
     method: "POST",

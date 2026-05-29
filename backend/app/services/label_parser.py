@@ -73,10 +73,10 @@ def parse_label(xml_path: str | Path) -> dict[str, Any]:
     root = tree.getroot()
 
     structures: list[dict[str, Any]] = []
-    file_areas = root.xpath(
-        "pds:File_Area_Observational | pds:File_Area_Observational_Supplemental",
-        namespaces=NSMAP,
-    )
+    file_areas = [
+        child for child in root
+        if etree.QName(child.tag).localname.startswith("File_Area_")
+    ]
 
     for file_area in file_areas:
         data_file_elem = file_area.xpath("pds:File/pds:file_name", namespaces=NSMAP)
@@ -115,11 +115,20 @@ def parse_label(xml_path: str | Path) -> dict[str, Any]:
             structures.append(structure)
             idx += 1
 
+    required_data_files: list[str] = []
+    for s in structures:
+        df = s.get("data_file")
+        if df:
+            fname = Path(df).name
+            if fname not in required_data_files:
+                required_data_files.append(fname)
+
     return {
         "filename": xml_path.name,
         "xml_path": str(xml_path),
         "structures": structures,
         "xml_tree": _element_to_dict(root),
+        "referenced_data_files": required_data_files,
     }
 
 

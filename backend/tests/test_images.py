@@ -9,7 +9,7 @@ def _upload_label(client, xml_path, data_path):
             "/api/labels/upload",
             files={
                 "label_file": (xml_path.name, lf, "application/xml"),
-                "data_file": (data_path.name, df, "application/octet-stream"),
+                "data_files": (data_path.name, df, "application/octet-stream"),
             },
         )
     assert resp.status_code == 200
@@ -117,7 +117,7 @@ def test_image_not_a_table(client, table_character_xml, table_character_tab):
             "/api/labels/upload",
             files={
                 "label_file": (table_character_xml.name, lf, "application/xml"),
-                "data_file": (table_character_tab.name, df, "application/octet-stream"),
+                "data_files": (table_character_tab.name, df, "application/octet-stream"),
             },
         )
     label_id = upload_resp.json()["label_id"]

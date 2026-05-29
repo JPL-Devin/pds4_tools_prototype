@@ -9,7 +9,7 @@ def _upload_label(client, xml_path, tab_path):
             "/api/labels/upload",
             files={
                 "label_file": (xml_path.name, lf, "application/xml"),
-                "data_file": (tab_path.name, df, "application/octet-stream"),
+                "data_files": (tab_path.name, df, "application/octet-stream"),
             },
         )
     assert resp.status_code == 200
