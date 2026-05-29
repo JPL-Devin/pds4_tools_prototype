@@ -71,6 +71,37 @@ export interface PlotDataResponse {
   layout: Partial<Plotly.Layout>;
 }
 
+export interface ImageMetadata {
+  label_id: string;
+  structure_index: number;
+  name: string;
+  structure_type: string;
+  dimensions: number[];
+  element_data_type: string;
+  width: number;
+  height: number;
+}
+
+export interface ImageStatistics {
+  min: number;
+  max: number;
+  mean: number;
+  std: number;
+  shape: number[];
+  dtype: string;
+  percentiles: Record<string, number>;
+}
+
+export interface ImageRenderParams {
+  colormap?: string;
+  stretch?: string;
+  vmin?: number | null;
+  vmax?: number | null;
+  percentile_low?: number;
+  percentile_high?: number;
+  band?: number | null;
+}
+
 export async function uploadLabel(
   labelFile: File,
   dataFile?: File,
@@ -157,4 +188,46 @@ export async function getPlotData(
     throw new Error(err.detail || "Plot generation failed");
   }
   return resp.json();
+}
+
+export async function getImageMetadata(
+  labelId: string,
+  structureIndex: number,
+): Promise<ImageMetadata> {
+  const resp = await fetch(
+    `${API_BASE}/images/${labelId}/${structureIndex}`,
+  );
+  if (!resp.ok) throw new Error("Failed to fetch image metadata");
+  return resp.json();
+}
+
+export async function getImageStatistics(
+  labelId: string,
+  structureIndex: number,
+): Promise<ImageStatistics> {
+  const resp = await fetch(
+    `${API_BASE}/images/${labelId}/${structureIndex}/statistics`,
+  );
+  if (!resp.ok) throw new Error("Failed to fetch image statistics");
+  return resp.json();
+}
+
+export async function renderImage(
+  labelId: string,
+  structureIndex: number,
+  params: ImageRenderParams,
+): Promise<Blob> {
+  const resp = await fetch(
+    `${API_BASE}/images/${labelId}/${structureIndex}/render`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(params),
+    },
+  );
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({ detail: resp.statusText }));
+    throw new Error(err.detail || "Image render failed");
+  }
+  return resp.blob();
 }

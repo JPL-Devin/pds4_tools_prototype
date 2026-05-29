@@ -4,9 +4,10 @@ import StructureList from "./components/StructureList";
 import TableViewer from "./components/TableViewer";
 import PlotPanel from "./components/PlotPanel";
 import LabelTree from "./components/LabelTree";
+import ImageViewer from "./components/ImageViewer";
 import type { LabelUploadResponse, StructureSummary } from "./services/api";
 
-type Tab = "table" | "plot" | "label";
+type Tab = "table" | "plot" | "image" | "label";
 
 export default function App() {
   const [label, setLabel] = useState<LabelUploadResponse | null>(null);
@@ -24,10 +25,13 @@ export default function App() {
     setSelectedStructure(structure);
     if (structure.structure_type.includes("Table")) {
       setActiveTab("table");
+    } else if (structure.structure_type.includes("Array")) {
+      setActiveTab("image");
     }
   };
 
   const isTable = selectedStructure?.structure_type.includes("Table") ?? false;
+  const isImage = selectedStructure?.structure_type.includes("Array") ?? false;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -92,6 +96,18 @@ export default function App() {
                     </button>
                   </>
                 )}
+                {isImage && (
+                  <button
+                    className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                      activeTab === "image"
+                        ? "border-nasa-blue text-nasa-blue"
+                        : "border-transparent text-nasa-gray-400 hover:text-nasa-gray-200"
+                    }`}
+                    onClick={() => setActiveTab("image")}
+                  >
+                    Image
+                  </button>
+                )}
                 <button
                   className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
                     activeTab === "label"
@@ -114,6 +130,12 @@ export default function App() {
                 )}
                 {activeTab === "plot" && isTable && (
                   <PlotPanel
+                    labelId={label.label_id}
+                    structureIndex={selectedStructure.index}
+                  />
+                )}
+                {activeTab === "image" && isImage && (
+                  <ImageViewer
                     labelId={label.label_id}
                     structureIndex={selectedStructure.index}
                   />

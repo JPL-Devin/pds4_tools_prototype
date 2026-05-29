@@ -80,5 +80,26 @@ class PlotDataResponse(BaseModel):
     layout: dict[str, Any]
 
 
+class ImageMetadata(BaseModel):
+    label_id: str
+    structure_index: int
+    name: str
+    structure_type: str
+    dimensions: list[int]
+    element_data_type: str
+    width: int
+    height: int
+
+
+class ImageRenderParams(BaseModel):
+    colormap: str = Field(default="grayscale", description="Colormap name")
+    stretch: str = Field(default="linear", description="Stretch: linear, log, sqrt, squared, histeq")
+    vmin: float | None = Field(default=None, description="Min clip value (None = auto from percentile)")
+    vmax: float | None = Field(default=None, description="Max clip value (None = auto from percentile)")
+    percentile_low: float = Field(default=1.0, ge=0, le=100, description="Low percentile for auto-clip")
+    percentile_high: float = Field(default=99.0, ge=0, le=100, description="High percentile for auto-clip")
+    band: int | None = Field(default=None, description="Band index for 3D arrays")
+
+
 class ErrorResponse(BaseModel):
     detail: str
