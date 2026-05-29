@@ -50,7 +50,8 @@ export default function FileUpload({ onSuccess }: FileUploadProps) {
       if (items && items.length > 0) {
         const entries: FileSystemEntry[] = [];
         for (let i = 0; i < items.length; i++) {
-          const entry = items[i].webkitGetAsEntry?.();
+          const item = items[i];
+          const entry = item?.webkitGetAsEntry?.();
           if (entry) entries.push(entry);
         }
 
