@@ -220,19 +220,19 @@ export default function PlotPanel({
             data={plotData.data.traces}
             layout={{
               ...plotData.layout,
-              paper_bgcolor: "#1E2738",
-              plot_bgcolor: "#131C2A",
-              font: { color: "#C9CFD9", family: "Public Sans" },
+              paper_bgcolor: "#2E3F54",
+              plot_bgcolor: "#1F2F42",
+              font: { color: "#D0D7E0", family: "Public Sans" },
               margin: { t: 40, r: 20, b: 50, l: 60 },
               xaxis: {
                 ...plotData.layout.xaxis,
-                gridcolor: "#2D3748",
-                zerolinecolor: "#434E60",
+                gridcolor: "#3D4F65",
+                zerolinecolor: "#516175",
               },
               yaxis: {
                 ...plotData.layout.yaxis,
-                gridcolor: "#2D3748",
-                zerolinecolor: "#434E60",
+                gridcolor: "#3D4F65",
+                zerolinecolor: "#516175",
               },
             }}
             config={{
