@@ -17,8 +17,19 @@ export default function App() {
 
   const handleUploadSuccess = (result: LabelUploadResponse) => {
     setLabel(result);
-    setSelectedStructure(null);
-    setActiveTab("table");
+    const first = result.structures[0] ?? null;
+    setSelectedStructure(first);
+    if (first) {
+      if (first.structure_type.includes("Table")) {
+        setActiveTab("table");
+      } else if (first.structure_type.includes("Array")) {
+        setActiveTab("image");
+      } else {
+        setActiveTab("label");
+      }
+    } else {
+      setActiveTab("label");
+    }
   };
 
   const handleSelectStructure = (structure: StructureSummary) => {

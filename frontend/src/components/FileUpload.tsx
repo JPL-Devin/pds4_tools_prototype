@@ -323,10 +323,10 @@ export default function FileUpload({ onSuccess }: FileUploadProps) {
             disabled={isUploading || !allRequiredProvided}
           >
             {isUploading
-              ? "Parsing..."
+              ? "Loading..."
               : !allRequiredProvided
                 ? "Waiting for data files..."
-                : "Parse Label"}
+                : "View Data"}
           </button>
           <button
             className="w-full text-xs text-nasa-gray-400 hover:text-nasa-gray-200 transition-colors py-1"
