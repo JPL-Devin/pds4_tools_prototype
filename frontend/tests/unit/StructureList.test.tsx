@@ -69,6 +69,6 @@ describe("StructureList", () => {
         onSelect={() => {}}
       />,
     );
-    expect(screen.getByText(/720 x 360/)).toBeInTheDocument();
+    expect(screen.getByText(/720 × 360/)).toBeInTheDocument();
   });
 });

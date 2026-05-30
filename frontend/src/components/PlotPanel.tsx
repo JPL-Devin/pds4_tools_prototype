@@ -86,19 +86,22 @@ export default function PlotPanel({
   if (!meta) {
     return (
       <div className="flex items-center justify-center h-64 text-nasa-gray-400">
-        Loading metadata...
+        <div className="text-center">
+          <div className="w-6 h-6 border-2 border-nasa-gray-600 border-t-nasa-blue rounded-full animate-spin mx-auto mb-3" />
+          Loading metadata...
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* Controls */}
       <div className="card">
         <div className="flex flex-wrap gap-4 items-end">
           {/* Plot type */}
           <div>
-            <label className="block text-xs text-nasa-gray-400 mb-1">
+            <label className="block text-xs text-nasa-gray-400 mb-1.5 font-medium">
               Plot Type
             </label>
             <select
@@ -116,7 +119,7 @@ export default function PlotPanel({
 
           {/* X column */}
           <div>
-            <label className="block text-xs text-nasa-gray-400 mb-1">
+            <label className="block text-xs text-nasa-gray-400 mb-1.5 font-medium">
               {plotType === "histogram" ? "Column" : "X Axis"}
             </label>
             <select
@@ -137,7 +140,7 @@ export default function PlotPanel({
           {/* Y column */}
           {needsY && (
             <div>
-              <label className="block text-xs text-nasa-gray-400 mb-1">
+              <label className="block text-xs text-nasa-gray-400 mb-1.5 font-medium">
                 Y Axis
               </label>
               <select
@@ -159,7 +162,7 @@ export default function PlotPanel({
           {/* Color column for scatter */}
           {plotType === "scatter" && (
             <div>
-              <label className="block text-xs text-nasa-gray-400 mb-1">
+              <label className="block text-xs text-nasa-gray-400 mb-1.5 font-medium">
                 Color By
               </label>
               <select
@@ -180,7 +183,7 @@ export default function PlotPanel({
           {/* Bins for histogram */}
           {plotType === "histogram" && (
             <div>
-              <label className="block text-xs text-nasa-gray-400 mb-1">
+              <label className="block text-xs text-nasa-gray-400 mb-1.5 font-medium">
                 Bins
               </label>
               <input
@@ -204,7 +207,11 @@ export default function PlotPanel({
         </div>
       </div>
 
-      {error && <p className="text-nasa-red text-sm">{error}</p>}
+      {error && (
+        <p className="text-nasa-red text-sm bg-nasa-red/5 border border-nasa-red/20 rounded-lg px-3 py-2">
+          {error}
+        </p>
+      )}
 
       {/* Plot display */}
       {plotData && (
@@ -213,19 +220,19 @@ export default function PlotPanel({
             data={plotData.data.traces}
             layout={{
               ...plotData.layout,
-              paper_bgcolor: "#212121",
-              plot_bgcolor: "#303030",
-              font: { color: "#E0E0E0", family: "Public Sans" },
+              paper_bgcolor: "#1E2738",
+              plot_bgcolor: "#131C2A",
+              font: { color: "#C9CFD9", family: "Public Sans" },
               margin: { t: 40, r: 20, b: 50, l: 60 },
               xaxis: {
                 ...plotData.layout.xaxis,
-                gridcolor: "#424242",
-                zerolinecolor: "#616161",
+                gridcolor: "#2D3748",
+                zerolinecolor: "#434E60",
               },
               yaxis: {
                 ...plotData.layout.yaxis,
-                gridcolor: "#424242",
-                zerolinecolor: "#616161",
+                gridcolor: "#2D3748",
+                zerolinecolor: "#434E60",
               },
             }}
             config={{

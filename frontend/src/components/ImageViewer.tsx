@@ -158,25 +158,32 @@ export default function ImageViewer({
   }, []);
 
   if (error) {
-    return <div className="text-nasa-red p-4">{error}</div>;
+    return (
+      <div className="card border-nasa-red/30 bg-nasa-red/5 text-nasa-red">
+        {error}
+      </div>
+    );
   }
 
   if (!meta) {
     return (
       <div className="flex items-center justify-center h-64 text-nasa-gray-400">
-        Loading image metadata...
+        <div className="text-center">
+          <div className="w-6 h-6 border-2 border-nasa-gray-600 border-t-nasa-blue rounded-full animate-spin mx-auto mb-3" />
+          Loading image metadata...
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-heading font-semibold">{meta.name}</h2>
-          <p className="text-sm text-nasa-gray-400">
-            {meta.width} x {meta.height} | {meta.element_data_type} |{" "}
+          <h2 className="text-lg font-heading font-semibold text-white">{meta.name}</h2>
+          <p className="text-sm text-nasa-gray-400 mt-0.5">
+            {meta.width} × {meta.height} · {meta.element_data_type} ·{" "}
             {meta.structure_type}
           </p>
         </div>
@@ -186,7 +193,7 @@ export default function ImageViewer({
       <div className="card">
         <div className="flex flex-wrap gap-4 items-end">
           <div>
-            <label className="block text-xs text-nasa-gray-400 mb-1">
+            <label className="block text-xs text-nasa-gray-400 mb-1.5 font-medium">
               Colormap
             </label>
             <select
@@ -203,7 +210,7 @@ export default function ImageViewer({
           </div>
 
           <div>
-            <label className="block text-xs text-nasa-gray-400 mb-1">
+            <label className="block text-xs text-nasa-gray-400 mb-1.5 font-medium">
               Stretch
             </label>
             <select
@@ -220,7 +227,7 @@ export default function ImageViewer({
           </div>
 
           <div>
-            <label className="block text-xs text-nasa-gray-400 mb-1">
+            <label className="block text-xs text-nasa-gray-400 mb-1.5 font-medium">
               Low % Clip
             </label>
             <input
@@ -235,7 +242,7 @@ export default function ImageViewer({
           </div>
 
           <div>
-            <label className="block text-xs text-nasa-gray-400 mb-1">
+            <label className="block text-xs text-nasa-gray-400 mb-1.5 font-medium">
               High % Clip
             </label>
             <input
@@ -259,7 +266,7 @@ export default function ImageViewer({
 
         {/* Statistics */}
         {stats && (
-          <div className="mt-3 flex flex-wrap gap-4 text-xs text-nasa-gray-400">
+          <div className="mt-4 pt-3 border-t border-nasa-gray-700/30 flex flex-wrap gap-5 text-xs text-nasa-gray-400">
             <span>
               Min: <span className="text-white">{stats.min.toFixed(2)}</span>
             </span>
@@ -280,7 +287,7 @@ export default function ImageViewer({
       <div
         ref={containerRef}
         className="card p-0 overflow-hidden relative cursor-grab active:cursor-grabbing"
-        style={{ height: "calc(100vh - 380px)" }}
+        style={{ height: "calc(100vh - 400px)" }}
         onWheel={handleWheel}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
@@ -288,8 +295,11 @@ export default function ImageViewer({
         onMouseLeave={handleMouseUp}
       >
         {loading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-nasa-gray-900/50 z-10">
-            <span className="text-nasa-gray-400">Rendering...</span>
+          <div className="absolute inset-0 flex items-center justify-center bg-nasa-gray-900/60 backdrop-blur-sm z-10">
+            <div className="text-center">
+              <div className="w-6 h-6 border-2 border-nasa-gray-600 border-t-nasa-blue rounded-full animate-spin mx-auto mb-2" />
+              <span className="text-nasa-gray-400 text-sm">Rendering...</span>
+            </div>
           </div>
         )}
         {imageSrc && (
@@ -313,7 +323,7 @@ export default function ImageViewer({
 
         {/* Pixel info overlay */}
         {pixelInfo && (
-          <div className="absolute bottom-2 left-2 bg-nasa-gray-900/80 text-xs text-nasa-gray-200 px-2 py-1 rounded font-mono">
+          <div className="absolute bottom-2 left-2 bg-nasa-gray-900/80 backdrop-blur-sm text-xs text-nasa-gray-200 px-2.5 py-1.5 rounded-md font-mono border border-nasa-gray-700/30">
             ({pixelInfo.x}, {pixelInfo.y}) | Zoom: {(zoom * 100).toFixed(0)}%
           </div>
         )}

@@ -79,6 +79,9 @@ def parse_label(xml_path: str | Path) -> dict[str, Any]:
     ]
 
     for file_area in file_areas:
+        file_area_type = etree.QName(file_area.tag).localname
+        is_supplemental = file_area_type != "File_Area_Observational"
+
         data_file_elem = file_area.xpath("pds:File/pds:file_name", namespaces=NSMAP)
         data_filename = data_file_elem[0].text if data_file_elem else None
 
@@ -105,6 +108,7 @@ def parse_label(xml_path: str | Path) -> dict[str, Any]:
                 "structure_type": local_tag,
                 "data_file": str(data_filepath) if data_filepath else None,
                 "offset": offset,
+                "supplemental": is_supplemental,
             }
 
             if tag in TABLE_TYPES:
@@ -117,6 +121,8 @@ def parse_label(xml_path: str | Path) -> dict[str, Any]:
 
     required_data_files: list[str] = []
     for s in structures:
+        if s.get("supplemental"):
+            continue
         df = s.get("data_file")
         if df:
             fname = Path(df).name

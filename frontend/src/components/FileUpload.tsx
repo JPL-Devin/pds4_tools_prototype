@@ -12,23 +12,47 @@ function getExt(name: string): string {
   return name.split(".").pop()?.toLowerCase() ?? "";
 }
 
-/** Parse a PDS4 label XML string and return all referenced file_name values. */
-function extractReferencedFiles(xmlText: string): string[] {
+interface ReferencedFile {
+  name: string;
+  required: boolean;
+}
+
+/**
+ * Parse a PDS4 label XML string and return all referenced file_name values,
+ * marking each as required (from File_Area_Observational) or optional
+ * (from supplemental / other File_Area_* elements).
+ */
+function extractReferencedFiles(xmlText: string): ReferencedFile[] {
   const parser = new DOMParser();
   const doc = parser.parseFromString(xmlText, "application/xml");
-  const fileNames: string[] = [];
+  const seen = new Set<string>();
+  const result: ReferencedFile[] = [];
 
-  // Find all <file_name> elements regardless of namespace
   const allElements = doc.getElementsByTagName("*");
   for (let i = 0; i < allElements.length; i++) {
     const el = allElements.item(i);
-    if (el && el.localName === "file_name" && el.textContent) {
-      fileNames.push(el.textContent.trim());
+    if (!el || el.localName !== "file_name") continue;
+
+    const fname = el.textContent?.trim();
+    if (!fname || seen.has(fname)) continue;
+    seen.add(fname);
+
+    // Walk up to find the parent File_Area_* element
+    let parent = el.parentElement?.parentElement;
+    let required = false;
+    while (parent) {
+      const pName = parent.localName;
+      if (pName.startsWith("File_Area_")) {
+        required = pName === "File_Area_Observational";
+        break;
+      }
+      parent = parent.parentElement;
     }
+
+    result.push({ name: fname, required });
   }
 
-  // Deduplicate
-  return [...new Set(fileNames)];
+  return result;
 }
 
 export default function FileUpload({ onSuccess }: FileUploadProps) {
@@ -39,9 +63,8 @@ export default function FileUpload({ onSuccess }: FileUploadProps) {
   const dataInputRef = useRef<HTMLInputElement>(null);
   const [labelFile, setLabelFile] = useState<File | null>(null);
   const [dataFiles, setDataFiles] = useState<File[]>([]);
-  const [referencedFiles, setReferencedFiles] = useState<string[]>([]);
+  const [referencedFiles, setReferencedFiles] = useState<ReferencedFile[]>([]);
 
-  // When a label file is selected, parse it to find referenced data files
   useEffect(() => {
     if (!labelFile) {
       setReferencedFiles([]);
@@ -79,7 +102,6 @@ export default function FileUpload({ onSuccess }: FileUploadProps) {
         setDataFiles(data);
         setError(null);
       } else if (files.length > 0) {
-        // No label found — treat as additional data files
         addDataFiles(files);
       }
     },
@@ -147,21 +169,41 @@ export default function FileUpload({ onSuccess }: FileUploadProps) {
     }
   };
 
+  const handleViewLabelOnly = async () => {
+    if (!labelFile) return;
+    setIsUploading(true);
+    setError(null);
+    try {
+      const result = await uploadLabel(labelFile, []);
+      onSuccess(result);
+      setLabelFile(null);
+      setDataFiles([]);
+      setReferencedFiles([]);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const dataFileNames = new Set(dataFiles.map((f) => f.name));
-  const allRefsProvided =
-    referencedFiles.length === 0 ||
-    referencedFiles.every((f) => dataFileNames.has(f));
+  const requiredFiles = referencedFiles.filter((f) => f.required);
+  const optionalFiles = referencedFiles.filter((f) => !f.required);
+  const allRequiredProvided =
+    requiredFiles.length === 0 ||
+    requiredFiles.every((f) => dataFileNames.has(f.name));
+  const missingRequired = requiredFiles.filter((f) => !dataFileNames.has(f.name));
 
   return (
     <div className="space-y-3">
-      <h2 className="text-sm font-heading font-semibold text-nasa-gray-200 uppercase tracking-wider">
+      <h2 className="text-xs font-heading font-semibold text-nasa-gray-400 uppercase tracking-widest">
         Upload Label
       </h2>
       <div
-        className={`border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors ${
+        className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-all ${
           isDragging
-            ? "border-nasa-blue bg-nasa-blue/10"
-            : "border-nasa-gray-600 hover:border-nasa-gray-400"
+            ? "border-nasa-blue bg-nasa-blue/10 shadow-lg"
+            : "border-nasa-gray-600/50 hover:border-nasa-gray-500/70 hover:bg-nasa-gray-800/30"
         }`}
         onDragOver={(e) => {
           e.preventDefault();
@@ -171,7 +213,12 @@ export default function FileUpload({ onSuccess }: FileUploadProps) {
         onDrop={handleDrop}
         onClick={() => fileInputRef.current?.click()}
       >
-        <p className="text-sm text-nasa-gray-400">
+        <div className="text-nasa-gray-500 mb-2">
+          <svg className="w-8 h-8 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+          </svg>
+        </div>
+        <p className="text-sm text-nasa-gray-300 font-medium">
           Drop label + data files here
         </p>
         <p className="text-xs text-nasa-gray-500 mt-1">
@@ -187,35 +234,67 @@ export default function FileUpload({ onSuccess }: FileUploadProps) {
       </div>
 
       {labelFile && (
-        <div className="text-xs text-nasa-gray-300 space-y-2">
-          <p>
-            Label: <span className="text-white">{labelFile.name}</span>
-          </p>
+        <div className="text-xs space-y-3 bg-nasa-gray-800/40 rounded-lg p-3 border border-nasa-gray-700/30">
+          <div className="flex items-center gap-2">
+            <svg className="w-4 h-4 text-nasa-blue flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+            </svg>
+            <span className="text-white font-medium truncate">{labelFile.name}</span>
+          </div>
 
           {referencedFiles.length > 0 && (
-            <div>
-              <p className="text-nasa-gray-400 mb-1">Referenced data files:</p>
-              <ul className="space-y-0.5">
-                {referencedFiles.map((fname) => {
-                  const found = dataFileNames.has(fname);
-                  return (
-                    <li key={fname} className="flex items-center gap-2">
-                      <span
-                        className={`w-2 h-2 rounded-full flex-shrink-0 ${found ? "bg-green-400" : "bg-red-400"}`}
-                      />
-                      <span className={found ? "text-green-300" : "text-red-300"}>
-                        {fname}
-                      </span>
-                      {found && (
-                        <span className="text-nasa-gray-500 text-[10px]">ready</span>
-                      )}
-                    </li>
-                  );
-                })}
-              </ul>
-              {!allRefsProvided && (
+            <div className="space-y-2">
+              {requiredFiles.length > 0 && (
+                <div>
+                  <p className="text-nasa-gray-400 mb-1.5 font-medium">Required data files:</p>
+                  <ul className="space-y-1">
+                    {requiredFiles.map((ref) => {
+                      const found = dataFileNames.has(ref.name);
+                      return (
+                        <li key={ref.name} className="flex items-center gap-2 pl-1">
+                          <span
+                            className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${found ? "bg-green-400" : "bg-amber-400"}`}
+                          />
+                          <span className={found ? "text-nasa-gray-200" : "text-amber-300"}>
+                            {ref.name}
+                          </span>
+                          {found && (
+                            <span className="text-nasa-gray-600 text-[10px]">ready</span>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              )}
+
+              {optionalFiles.length > 0 && (
+                <div>
+                  <p className="text-nasa-gray-500 mb-1.5">Supplemental (optional):</p>
+                  <ul className="space-y-1">
+                    {optionalFiles.map((ref) => {
+                      const found = dataFileNames.has(ref.name);
+                      return (
+                        <li key={ref.name} className="flex items-center gap-2 pl-1">
+                          <span
+                            className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${found ? "bg-green-400" : "bg-nasa-gray-600"}`}
+                          />
+                          <span className={found ? "text-nasa-gray-200" : "text-nasa-gray-500"}>
+                            {ref.name}
+                          </span>
+                          {found && (
+                            <span className="text-nasa-gray-600 text-[10px]">ready</span>
+                          )}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              )}
+
+              {missingRequired.length > 0 && (
                 <button
-                  className="mt-2 text-nasa-blue text-xs underline"
+                  className="text-nasa-blue text-xs hover:text-nasa-blue-light transition-colors"
                   onClick={(e) => {
                     e.stopPropagation();
                     dataInputRef.current?.click();
@@ -237,20 +316,33 @@ export default function FileUpload({ onSuccess }: FileUploadProps) {
       )}
 
       {labelFile && (
-        <button
-          className="btn-primary w-full text-sm"
-          onClick={handleUpload}
-          disabled={isUploading || !allRefsProvided}
-        >
-          {isUploading
-            ? "Parsing..."
-            : !allRefsProvided
-              ? "Waiting for data files..."
-              : "Parse Label"}
-        </button>
+        <div className="space-y-2">
+          <button
+            className="btn-primary w-full text-sm"
+            onClick={handleUpload}
+            disabled={isUploading || !allRequiredProvided}
+          >
+            {isUploading
+              ? "Parsing..."
+              : !allRequiredProvided
+                ? "Waiting for data files..."
+                : "Parse Label"}
+          </button>
+          <button
+            className="w-full text-xs text-nasa-gray-400 hover:text-nasa-gray-200 transition-colors py-1"
+            onClick={handleViewLabelOnly}
+            disabled={isUploading}
+          >
+            View label only
+          </button>
+        </div>
       )}
 
-      {error && <p className="text-nasa-red text-xs">{error}</p>}
+      {error && (
+        <p className="text-nasa-red text-xs bg-nasa-red/5 border border-nasa-red/20 rounded-lg px-3 py-2">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

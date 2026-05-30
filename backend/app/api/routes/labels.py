@@ -68,19 +68,6 @@ async def upload_label(
         for s in parsed["structures"]
     ]
 
-    missing_files = []
-    xml_dir = label_path.parent
-    for fname in parsed.get("referenced_data_files", []):
-        if not (xml_dir / fname).exists():
-            missing_files.append(fname)
-
-    if missing_files:
-        raise HTTPException(
-            status_code=422,
-            detail=f"Missing required data files referenced by label: {', '.join(missing_files)}. "
-            "Upload them alongside the label file.",
-        )
-
     return LabelUploadResponse(
         label_id=label_id,
         filename=parsed["filename"],

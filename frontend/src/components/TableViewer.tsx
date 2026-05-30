@@ -78,13 +78,20 @@ export default function TableViewer({
   };
 
   if (error) {
-    return <div className="text-nasa-red p-4">{error}</div>;
+    return (
+      <div className="card border-nasa-red/30 bg-nasa-red/5 text-nasa-red">
+        {error}
+      </div>
+    );
   }
 
   if (!meta || !tableData) {
     return (
       <div className="flex items-center justify-center h-64 text-nasa-gray-400">
-        Loading table data...
+        <div className="text-center">
+          <div className="w-6 h-6 border-2 border-nasa-gray-600 border-t-nasa-blue rounded-full animate-spin mx-auto mb-3" />
+          Loading table data...
+        </div>
       </div>
     );
   }
@@ -93,14 +100,16 @@ export default function TableViewer({
   const rows = sortedData();
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-heading font-semibold">{meta.name}</h2>
-          <p className="text-sm text-nasa-gray-400">
-            {meta.record_count.toLocaleString()} records | {meta.fields.length}{" "}
-            fields | {meta.structure_type}
+          <h2 className="text-lg font-heading font-semibold text-white">
+            {meta.name}
+          </h2>
+          <p className="text-sm text-nasa-gray-400 mt-0.5">
+            {meta.record_count.toLocaleString()} records · {meta.fields.length}{" "}
+            fields · {meta.structure_type}
           </p>
         </div>
         <a
@@ -114,29 +123,31 @@ export default function TableViewer({
 
       {/* Table */}
       <div className="card p-0 overflow-hidden">
-        <div className="overflow-auto max-h-[calc(100vh-280px)]">
+        <div className="overflow-auto max-h-[calc(100vh-300px)]">
           <table className="w-full text-sm">
-            <thead className="bg-nasa-gray-700 sticky top-0">
+            <thead className="bg-nasa-gray-800 sticky top-0 z-10">
               <tr>
                 {tableData.columns.map((col) => (
                   <th
                     key={col}
-                    className="px-3 py-2 text-left text-xs font-medium text-nasa-gray-300 uppercase tracking-wider cursor-pointer hover:text-white select-none whitespace-nowrap"
+                    className="px-4 py-2.5 text-left text-xs font-medium text-nasa-gray-300 uppercase tracking-wider cursor-pointer hover:text-white select-none whitespace-nowrap transition-colors"
                     onClick={() => handleSort(col)}
                   >
                     {col}
                     {sortCol === col && (
-                      <span className="ml-1">{sortAsc ? "\u25B2" : "\u25BC"}</span>
+                      <span className="ml-1.5 text-nasa-blue">
+                        {sortAsc ? "\u25B2" : "\u25BC"}
+                      </span>
                     )}
                   </th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-nasa-gray-700">
+            <tbody className="divide-y divide-nasa-gray-700/40">
               {rows.map((row, i) => (
                 <tr
                   key={i}
-                  className="hover:bg-nasa-gray-700/50 transition-colors"
+                  className="hover:bg-nasa-gray-800/40 transition-colors"
                 >
                   {tableData.columns.map((col) => {
                     const val = row[col];
@@ -144,8 +155,8 @@ export default function TableViewer({
                     return (
                       <td
                         key={col}
-                        className={`px-3 py-1.5 whitespace-nowrap ${
-                          isNum ? "font-mono text-right" : ""
+                        className={`px-4 py-2 whitespace-nowrap text-nasa-gray-200 ${
+                          isNum ? "font-mono text-right tabular-nums" : ""
                         }`}
                       >
                         {val != null ? String(val) : ""}
@@ -163,11 +174,11 @@ export default function TableViewer({
       {totalPages > 1 && (
         <div className="flex items-center justify-between text-sm">
           <p className="text-nasa-gray-400">
-            Showing {page * pageSize + 1}-
+            Showing {page * pageSize + 1}–
             {Math.min((page + 1) * pageSize, tableData.total_records)} of{" "}
             {tableData.total_records.toLocaleString()}
           </p>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
             <button
               className="btn-secondary text-xs"
               onClick={() => setPage(Math.max(0, page - 1))}
@@ -175,8 +186,8 @@ export default function TableViewer({
             >
               Previous
             </button>
-            <span className="px-3 py-1 text-nasa-gray-400">
-              Page {page + 1} / {totalPages}
+            <span className="px-3 py-1 text-nasa-gray-400 text-xs">
+              {page + 1} / {totalPages}
             </span>
             <button
               className="btn-secondary text-xs"

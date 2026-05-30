@@ -46,7 +46,7 @@ describe("ImageViewer", () => {
 
   it("shows image dimensions", async () => {
     render(<ImageViewer labelId="test-id" structureIndex={0} />);
-    expect(await screen.findByText(/720 x 360/)).toBeInTheDocument();
+    expect(await screen.findByText(/720 × 360/)).toBeInTheDocument();
   });
 
   it("shows colormap selector", async () => {
