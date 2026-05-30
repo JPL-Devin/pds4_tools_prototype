@@ -37,15 +37,13 @@ export default function App() {
     <div className="min-h-screen flex flex-col">
       <header className="bg-nasa-gray-800 border-b border-nasa-gray-700 px-6 py-3 flex items-center gap-4">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-nasa-red flex items-center justify-center">
-            <span className="text-white font-heading font-bold text-sm">P4</span>
-          </div>
+          <img src="/logo.svg" alt="PDS View" className="w-8 h-8" />
           <h1 className="text-lg font-heading font-semibold text-white">
-            PDS4 Viewer
+            PDS View
           </h1>
         </div>
         <span className="text-nasa-gray-400 text-sm">
-          Planetary Data System 4 Data Explorer
+          Planetary Data System Data Explorer
         </span>
       </header>
 

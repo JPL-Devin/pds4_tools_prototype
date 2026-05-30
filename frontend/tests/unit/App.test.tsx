@@ -5,7 +5,7 @@ import App from "../../src/App";
 describe("App", () => {
   it("renders the header", () => {
     render(<App />);
-    expect(screen.getByText("PDS4 Viewer")).toBeInTheDocument();
+    expect(screen.getByText("PDS View")).toBeInTheDocument();
   });
 
   it("shows upload prompt when no label is loaded", () => {
