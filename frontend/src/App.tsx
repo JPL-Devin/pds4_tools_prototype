@@ -3,7 +3,7 @@ import FileUpload from "./components/FileUpload";
 import StructureList from "./components/StructureList";
 import TableViewer from "./components/TableViewer";
 import PlotPanel from "./components/PlotPanel";
-import LabelTree from "./components/LabelTree";
+import LabelView from "./components/LabelView";
 import ImageViewer from "./components/ImageViewer";
 import type { LabelUploadResponse, StructureSummary } from "./services/api";
 
@@ -95,7 +95,7 @@ export default function App() {
                   </>
                 )}
                 {isImage && tabButton("image", "Image")}
-                {tabButton("label", "Label XML")}
+                {tabButton("label", "Label")}
               </div>
 
               {/* Tab content */}
@@ -119,7 +119,7 @@ export default function App() {
                   />
                 )}
                 {activeTab === "label" && (
-                  <LabelTree labelId={label.label_id} />
+                  <LabelView labelId={label.label_id} />
                 )}
               </div>
             </>
