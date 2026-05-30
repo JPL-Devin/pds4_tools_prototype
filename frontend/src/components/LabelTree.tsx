@@ -41,7 +41,7 @@ export default function LabelTree({ labelId }: LabelTreeProps) {
 }
 
 function TreeNode({ node, depth }: { node: XmlNode; depth: number }) {
-  const [expanded, setExpanded] = useState(depth < 2);
+  const [expanded, setExpanded] = useState(true);
   const hasChildren = node.children && node.children.length > 0;
   const indent = depth * 16;
 

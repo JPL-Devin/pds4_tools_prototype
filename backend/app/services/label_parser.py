@@ -391,13 +391,31 @@ def read_array_data(structure: dict[str, Any]) -> np.ndarray:
     return data.reshape(dimensions)
 
 
+_NS_PREFIXES: dict[str, str] = {
+    "http://www.w3.org/2001/XMLSchema-instance": "xsi",
+    "http://www.w3.org/2001/XMLSchema": "xs",
+    PDS4_NS: "pds",
+}
+
+
+def _clean_attr_name(name: str) -> str:
+    """Convert Clark notation {uri}local to prefix:local."""
+    if name.startswith("{"):
+        uri, local = name[1:].split("}", 1)
+        prefix = _NS_PREFIXES.get(uri)
+        return f"{prefix}:{local}" if prefix else local
+    return name
+
+
 def _element_to_dict(element: etree._Element) -> dict[str, Any]:
     """Convert an lxml element tree to a nested dict for JSON serialization."""
     tag = etree.QName(element.tag).localname
     result: dict[str, Any] = {"tag": tag}
 
     if element.attrib:
-        result["attributes"] = dict(element.attrib)
+        result["attributes"] = {
+            _clean_attr_name(k): v for k, v in element.attrib.items()
+        }
 
     children = list(element)
     if children:
