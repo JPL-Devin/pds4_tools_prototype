@@ -26,7 +26,7 @@ export default function LabelTree({ labelId }: LabelTreeProps) {
 
   if (!tree) {
     return (
-      <div className="flex items-center justify-center h-64 text-nasa-gray-400">
+      <div className="flex items-center justify-center h-64 text-nasa-gray-300">
         <div className="text-center">
           <div className="w-6 h-6 border-2 border-nasa-gray-600 border-t-nasa-blue rounded-full animate-spin mx-auto mb-3" />
           Loading label...
@@ -37,7 +37,7 @@ export default function LabelTree({ labelId }: LabelTreeProps) {
 
   return (
     <div className="card overflow-auto max-h-[calc(100vh-200px)]">
-      <h2 className="text-xs font-heading font-semibold text-nasa-gray-400 uppercase tracking-widest mb-4">
+      <h2 className="text-xs font-heading font-semibold text-nasa-gray-300 uppercase tracking-widest mb-4">
         PDS4 Label XML Tree
       </h2>
       <div className="font-mono text-xs leading-relaxed">
@@ -60,7 +60,7 @@ function TreeNode({ node, depth }: { node: XmlNode; depth: number }) {
         onClick={() => hasChildren && setExpanded(!expanded)}
       >
         {hasChildren ? (
-          <span className={`w-4 flex-shrink-0 select-none transition-transform ${expanded ? "" : "-rotate-90"} text-nasa-gray-500`}>
+          <span className={`w-4 flex-shrink-0 select-none transition-transform ${expanded ? "" : "-rotate-90"} text-nasa-gray-400`}>
             {"\u25BC"}
           </span>
         ) : (
@@ -70,7 +70,7 @@ function TreeNode({ node, depth }: { node: XmlNode; depth: number }) {
         {node.attributes &&
           Object.entries(node.attributes).map(([k, v]) => (
             <span key={k}>
-              <span className="text-nasa-gray-400"> {k}=</span>
+              <span className="text-nasa-gray-300"> {k}=</span>
               <span className="text-emerald-400/80">&quot;{v}&quot;</span>
             </span>
           ))}

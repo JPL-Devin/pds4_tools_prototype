@@ -54,7 +54,7 @@ export default function App() {
       className={`px-5 py-2.5 text-sm font-medium transition-all relative ${
         activeTab === tab
           ? "text-nasa-blue"
-          : "text-gray-400 hover:text-gray-600 dark:text-nasa-gray-400 dark:hover:text-nasa-gray-200"
+          : "text-gray-500 hover:text-gray-700 dark:text-nasa-gray-300 dark:hover:text-nasa-gray-100"
       }`}
       onClick={() => setActiveTab(tab)}
     >
@@ -76,14 +76,14 @@ export default function App() {
           </h1>
         </div>
         <div className="h-5 w-px bg-gray-700 dark:bg-nasa-gray-700/60" />
-        <span className="text-gray-400 dark:text-nasa-gray-400 text-sm font-light">
+        <span className="text-gray-400 dark:text-nasa-gray-300 text-sm font-light">
           Planetary Data System Data Explorer
         </span>
         <div className="flex-1" />
         {/* Theme toggle */}
         <button
           onClick={toggleTheme}
-          className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 dark:hover:bg-nasa-gray-800 transition-colors"
+          className="p-2 rounded-lg text-gray-300 hover:text-white hover:bg-gray-800 dark:hover:bg-nasa-gray-800 transition-colors"
           aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
           title={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
         >
@@ -108,7 +108,7 @@ export default function App() {
               className={`flex-1 px-4 py-2.5 text-xs font-medium uppercase tracking-wider transition-all ${
                 inputMode === "browse"
                   ? "text-nasa-blue border-b-2 border-nasa-blue bg-white dark:bg-nasa-gray-900/60"
-                  : "text-gray-400 dark:text-nasa-gray-400 hover:text-gray-600 dark:hover:text-nasa-gray-200"
+                  : "text-gray-500 dark:text-nasa-gray-300 hover:text-gray-700 dark:hover:text-nasa-gray-100"
               }`}
               onClick={() => setInputMode("browse")}
             >
@@ -118,7 +118,7 @@ export default function App() {
               className={`flex-1 px-4 py-2.5 text-xs font-medium uppercase tracking-wider transition-all ${
                 inputMode === "upload"
                   ? "text-nasa-blue border-b-2 border-nasa-blue bg-white dark:bg-nasa-gray-900/60"
-                  : "text-gray-400 dark:text-nasa-gray-400 hover:text-gray-600 dark:hover:text-nasa-gray-200"
+                  : "text-gray-500 dark:text-nasa-gray-300 hover:text-gray-700 dark:hover:text-nasa-gray-100"
               }`}
               onClick={() => setInputMode("upload")}
             >
@@ -208,7 +208,7 @@ export default function App() {
                     ? "Select a data structure from the sidebar"
                     : "Upload a PDS4 label to get started"}
                 </p>
-                <p className="text-sm text-gray-400 dark:text-nasa-gray-500">
+                <p className="text-sm text-gray-500 dark:text-nasa-gray-300">
                   Supports .xml and .lblx PDS4 label files
                 </p>
               </div>

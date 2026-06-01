@@ -88,7 +88,7 @@ export default function TableViewer({
 
   if (!meta || !tableData) {
     return (
-      <div className="flex items-center justify-center h-64 text-gray-400 dark:text-nasa-gray-400">
+      <div className="flex items-center justify-center h-64 text-gray-500 dark:text-nasa-gray-300">
         <div className="text-center">
           <div className="w-6 h-6 border-2 border-gray-300 dark:border-nasa-gray-600 border-t-nasa-blue rounded-full animate-spin mx-auto mb-3" />
           Loading table data...
@@ -108,7 +108,7 @@ export default function TableViewer({
           <h2 className="text-lg font-heading font-semibold text-gray-900 dark:text-white">
             {meta.name}
           </h2>
-          <p className="text-sm text-gray-500 dark:text-nasa-gray-400 mt-0.5">
+          <p className="text-sm text-gray-600 dark:text-nasa-gray-300 mt-0.5">
             {meta.record_count.toLocaleString()} records · {meta.fields.length}{" "}
             fields · {meta.structure_type}
           </p>
@@ -131,12 +131,12 @@ export default function TableViewer({
                 {tableData.columns.map((col, colIdx) => (
                   <th
                     key={colIdx}
-                    className="px-4 py-2.5 text-left text-xs font-medium text-gray-500 dark:text-nasa-gray-300 uppercase tracking-wider cursor-pointer hover:text-gray-900 dark:hover:text-white select-none whitespace-nowrap transition-colors"
+                    className="px-4 py-2.5 text-left text-xs font-medium text-gray-600 dark:text-nasa-gray-200 uppercase tracking-wider cursor-pointer hover:text-gray-900 dark:hover:text-white select-none whitespace-nowrap transition-colors"
                     onClick={() => handleSort(colIdx)}
                   >
                     {col}
                     {tableData.columns.filter((c) => c === col).length > 1 && (
-                      <span className="text-gray-400 dark:text-nasa-gray-500 ml-1 text-[10px] normal-case">
+                      <span className="text-gray-500 dark:text-nasa-gray-400 ml-1 text-[10px] normal-case">
                         [{colIdx + 1}]
                       </span>
                     )}
@@ -178,7 +178,7 @@ export default function TableViewer({
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between text-sm">
-          <p className="text-gray-500 dark:text-nasa-gray-400">
+          <p className="text-gray-600 dark:text-nasa-gray-300">
             Showing {page * pageSize + 1}–
             {Math.min((page + 1) * pageSize, tableData.total_records)} of{" "}
             {tableData.total_records.toLocaleString()}
@@ -191,7 +191,7 @@ export default function TableViewer({
             >
               Previous
             </button>
-            <span className="px-3 py-1 text-gray-400 dark:text-nasa-gray-400 text-xs">
+            <span className="px-3 py-1 text-gray-600 dark:text-nasa-gray-300 text-xs">
               {page + 1} / {totalPages}
             </span>
             <button
@@ -206,7 +206,7 @@ export default function TableViewer({
       )}
 
       {loading && (
-        <div className="text-center text-gray-400 dark:text-nasa-gray-400 text-sm">
+        <div className="text-center text-gray-500 dark:text-nasa-gray-300 text-sm">
           Loading...
         </div>
       )}

@@ -23,7 +23,7 @@ export default function StructureList({
 }: StructureListProps) {
   return (
     <div className="space-y-3">
-      <h2 className="text-xs font-heading font-semibold text-gray-400 dark:text-nasa-gray-400 uppercase tracking-widest">
+      <h2 className="text-xs font-heading font-semibold text-gray-500 dark:text-nasa-gray-300 uppercase tracking-widest">
         Data Structures
       </h2>
       <ul className="space-y-1.5">
@@ -44,14 +44,14 @@ export default function StructureList({
                   className={`w-7 h-7 rounded-md flex items-center justify-center text-xs font-mono font-medium flex-shrink-0 ${
                     isSelected
                       ? "bg-nasa-blue text-white"
-                      : "bg-gray-200 text-gray-500 dark:bg-nasa-gray-700/80 dark:text-nasa-gray-400"
+                      : "bg-gray-200 text-gray-600 dark:bg-nasa-gray-700/80 dark:text-nasa-gray-300"
                   }`}
                 >
                   {icon}
                 </span>
                 <div className="min-w-0">
                   <p className="truncate font-medium">{s.name}</p>
-                  <p className="text-xs text-gray-400 dark:text-nasa-gray-500 mt-0.5">
+                  <p className="text-xs text-gray-500 dark:text-nasa-gray-400 mt-0.5">
                     {s.structure_type}
                     {s.record_count != null && ` · ${s.record_count.toLocaleString()} records`}
                     {s.field_count != null && ` · ${s.field_count} fields`}

@@ -106,7 +106,7 @@ export default function PlotPanel({
 
   if (!meta) {
     return (
-      <div className="flex items-center justify-center h-64 text-gray-400 dark:text-nasa-gray-400">
+      <div className="flex items-center justify-center h-64 text-gray-500 dark:text-nasa-gray-300">
         <div className="text-center">
           <div className="w-6 h-6 border-2 border-gray-300 dark:border-nasa-gray-600 border-t-nasa-blue rounded-full animate-spin mx-auto mb-3" />
           Loading metadata...
@@ -122,7 +122,7 @@ export default function PlotPanel({
         <div className="flex flex-wrap gap-4 items-end">
           {/* Plot type */}
           <div>
-            <label className="block text-xs text-gray-500 dark:text-nasa-gray-400 mb-1.5 font-medium">
+            <label className="block text-xs text-gray-600 dark:text-nasa-gray-300 mb-1.5 font-medium">
               Plot Type
             </label>
             <select
@@ -140,7 +140,7 @@ export default function PlotPanel({
 
           {/* X column */}
           <div>
-            <label className="block text-xs text-gray-500 dark:text-nasa-gray-400 mb-1.5 font-medium">
+            <label className="block text-xs text-gray-600 dark:text-nasa-gray-300 mb-1.5 font-medium">
               {plotType === "histogram" ? "Column" : "X Axis"}
             </label>
             <select
@@ -162,7 +162,7 @@ export default function PlotPanel({
           {/* Y column */}
           {needsY && (
             <div>
-              <label className="block text-xs text-gray-500 dark:text-nasa-gray-400 mb-1.5 font-medium">
+              <label className="block text-xs text-gray-600 dark:text-nasa-gray-300 mb-1.5 font-medium">
                 Y Axis
               </label>
               <select
@@ -187,7 +187,7 @@ export default function PlotPanel({
           {/* Color column for scatter */}
           {plotType === "scatter" && (
             <div>
-              <label className="block text-xs text-gray-500 dark:text-nasa-gray-400 mb-1.5 font-medium">
+              <label className="block text-xs text-gray-600 dark:text-nasa-gray-300 mb-1.5 font-medium">
                 Color By
               </label>
               <select
@@ -212,7 +212,7 @@ export default function PlotPanel({
           {/* Bins for histogram */}
           {plotType === "histogram" && (
             <div>
-              <label className="block text-xs text-gray-500 dark:text-nasa-gray-400 mb-1.5 font-medium">
+              <label className="block text-xs text-gray-600 dark:text-nasa-gray-300 mb-1.5 font-medium">
                 Bins
               </label>
               <input
