@@ -1,5 +1,6 @@
 import { useState } from "react";
 import FileUpload from "./components/FileUpload";
+import FileBrowser from "./components/FileBrowser";
 import StructureList from "./components/StructureList";
 import TableViewer from "./components/TableViewer";
 import PlotPanel from "./components/PlotPanel";
@@ -9,15 +10,17 @@ import { useTheme } from "./ThemeContext";
 import type { LabelUploadResponse, StructureSummary } from "./services/api";
 
 type Tab = "table" | "plot" | "image" | "label";
+type InputMode = "browse" | "upload";
 
 export default function App() {
   const [label, setLabel] = useState<LabelUploadResponse | null>(null);
   const [selectedStructure, setSelectedStructure] =
     useState<StructureSummary | null>(null);
   const [activeTab, setActiveTab] = useState<Tab>("table");
+  const [inputMode, setInputMode] = useState<InputMode>("browse");
   const { theme, toggleTheme } = useTheme();
 
-  const handleUploadSuccess = (result: LabelUploadResponse) => {
+  const handleLabelLoaded = (result: LabelUploadResponse) => {
     setLabel(result);
     const first = result.structures[0] ?? null;
     setSelectedStructure(first);
@@ -46,7 +49,7 @@ export default function App() {
   const isTable = selectedStructure?.structure_type.includes("Table") ?? false;
   const isImage = selectedStructure?.structure_type.includes("Array") ?? false;
 
-  const tabButton = (tab: Tab, label: string) => (
+  const tabButton = (tab: Tab, tabLabel: string) => (
     <button
       className={`px-5 py-2.5 text-sm font-medium transition-all relative ${
         activeTab === tab
@@ -55,24 +58,19 @@ export default function App() {
       }`}
       onClick={() => setActiveTab(tab)}
     >
-      {label}
+      {tabLabel}
       {activeTab === tab && (
         <span className="absolute bottom-0 left-2 right-2 h-0.5 bg-nasa-blue rounded-full" />
       )}
     </button>
   );
 
-  const logoSrc =
-    theme === "dark"
-      ? "/assets/logo/pds-view-logo-dark-background.svg"
-      : "/assets/logo/pds-view-logo-light-background.svg";
-
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-nasa-gray-950">
       {/* Header */}
       <header className="bg-gray-900 dark:bg-nasa-gray-900 border-b border-gray-800 dark:border-nasa-gray-700/50 px-6 py-3.5 flex items-center gap-5">
         <div className="flex items-center gap-3">
-          <img src={logoSrc} alt="PDS View" className="w-8 h-8" />
+          <img src="/assets/logo/pds-view-logo-dark-background.svg" alt="PDS View" className="w-8 h-8" />
           <h1 className="text-lg font-heading font-bold text-white tracking-tight">
             PDS View
           </h1>
@@ -104,9 +102,40 @@ export default function App() {
       <div className="flex flex-1 overflow-hidden">
         {/* Left sidebar */}
         <aside className="w-80 bg-gray-50 dark:bg-nasa-gray-900/80 border-r border-gray-200 dark:border-nasa-gray-700/50 flex flex-col overflow-hidden">
-          <div className="p-5 border-b border-gray-200 dark:border-nasa-gray-700/40">
-            <FileUpload onSuccess={handleUploadSuccess} />
+          {/* Input mode tabs */}
+          <div className="flex border-b border-gray-200 dark:border-nasa-gray-700/40">
+            <button
+              className={`flex-1 px-4 py-2.5 text-xs font-medium uppercase tracking-wider transition-all ${
+                inputMode === "browse"
+                  ? "text-nasa-blue border-b-2 border-nasa-blue bg-white dark:bg-nasa-gray-900/60"
+                  : "text-gray-400 dark:text-nasa-gray-400 hover:text-gray-600 dark:hover:text-nasa-gray-200"
+              }`}
+              onClick={() => setInputMode("browse")}
+            >
+              Browse Files
+            </button>
+            <button
+              className={`flex-1 px-4 py-2.5 text-xs font-medium uppercase tracking-wider transition-all ${
+                inputMode === "upload"
+                  ? "text-nasa-blue border-b-2 border-nasa-blue bg-white dark:bg-nasa-gray-900/60"
+                  : "text-gray-400 dark:text-nasa-gray-400 hover:text-gray-600 dark:hover:text-nasa-gray-200"
+              }`}
+              onClick={() => setInputMode("upload")}
+            >
+              Upload
+            </button>
           </div>
+
+          {/* Input content */}
+          <div className="p-4 border-b border-gray-200 dark:border-nasa-gray-700/40 overflow-auto flex-shrink-0" style={{ maxHeight: label ? "50%" : "100%" }}>
+            {inputMode === "browse" ? (
+              <FileBrowser onLabelOpened={handleLabelLoaded} />
+            ) : (
+              <FileUpload onSuccess={handleLabelLoaded} />
+            )}
+          </div>
+
+          {/* Structures list */}
           {label && (
             <div className="flex-1 overflow-auto p-5">
               <StructureList

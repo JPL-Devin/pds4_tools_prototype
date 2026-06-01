@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import images, labels, tables
+from app.api.routes import browse, images, labels, tables
+from app.services.storage import init_default_backends
 
 app = FastAPI(
     title="PDS4 Viewer API",
@@ -20,6 +21,9 @@ app.add_middleware(
 app.include_router(labels.router, prefix="/api/labels", tags=["labels"])
 app.include_router(tables.router, prefix="/api/tables", tags=["tables"])
 app.include_router(images.router, prefix="/api/images", tags=["images"])
+app.include_router(browse.router, prefix="/api/browse", tags=["browse"])
+
+init_default_backends()
 
 
 @app.get("/api/health")

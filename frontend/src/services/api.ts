@@ -1,5 +1,64 @@
 const API_BASE = "/api";
 
+/* ---- Browse / Storage Backend types ---- */
+
+export interface StorageSource {
+  name: string;
+  root: string;
+}
+
+export interface FileEntry {
+  name: string;
+  path: string;
+  is_dir: boolean;
+  size: number | null;
+  is_label: boolean;
+}
+
+export interface BrowseResponse {
+  source: string;
+  current_path: string;
+  parent_path: string | null;
+  entries: FileEntry[];
+}
+
+export async function getStorageSources(): Promise<StorageSource[]> {
+  const resp = await fetch(`${API_BASE}/browse/sources`);
+  if (!resp.ok) throw new Error("Failed to fetch storage sources");
+  return resp.json();
+}
+
+export async function browseDirectory(
+  source: string,
+  path?: string,
+): Promise<BrowseResponse> {
+  const params = new URLSearchParams({ source });
+  if (path) params.set("path", path);
+  const resp = await fetch(`${API_BASE}/browse/list?${params}`);
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({ detail: resp.statusText }));
+    throw new Error(err.detail || "Failed to browse directory");
+  }
+  return resp.json();
+}
+
+export async function openLabelFromStorage(
+  source: string,
+  path: string,
+): Promise<LabelUploadResponse> {
+  const params = new URLSearchParams({ source, path });
+  const resp = await fetch(`${API_BASE}/browse/open?${params}`, {
+    method: "POST",
+  });
+  if (!resp.ok) {
+    const err = await resp.json().catch(() => ({ detail: resp.statusText }));
+    throw new Error(err.detail || "Failed to open label");
+  }
+  return resp.json();
+}
+
+/* ---- Data types ---- */
+
 export interface StructureSummary {
   index: number;
   name: string;
