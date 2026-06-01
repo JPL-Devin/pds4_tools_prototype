@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   browseDirectory,
   getStorageSources,
@@ -31,6 +31,14 @@ export default function FileBrowser({ onLabelOpened }: FileBrowserProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [opening, setOpening] = useState<string | null>(null);
+  const [canScrollDown, setCanScrollDown] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const checkScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollDown(el.scrollHeight - el.scrollTop - el.clientHeight > 8);
+  }, []);
 
   // Load sources on mount
   useEffect(() => {
@@ -62,6 +70,14 @@ export default function FileBrowser({ onLabelOpened }: FileBrowserProps) {
   useEffect(() => {
     browse();
   }, [browse]);
+
+  // Re-check scroll state after data loads
+  useEffect(() => {
+    if (browseData) {
+      // Small delay to ensure DOM has rendered
+      requestAnimationFrame(checkScroll);
+    }
+  }, [browseData, checkScroll]);
 
   const handleEntryClick = (entry: FileEntry) => {
     if (entry.is_dir) {
@@ -178,7 +194,7 @@ export default function FileBrowser({ onLabelOpened }: FileBrowserProps) {
       )}
 
       {/* File listing */}
-      <div className="card p-0 overflow-hidden">
+      <div className="card p-0 overflow-hidden relative">
         {loading && !browseData ? (
           <div className="flex items-center justify-center py-12 text-gray-400 dark:text-nasa-gray-400">
             <div className="text-center">
@@ -187,7 +203,11 @@ export default function FileBrowser({ onLabelOpened }: FileBrowserProps) {
             </div>
           </div>
         ) : (
-          <div className="max-h-80 overflow-y-auto">
+          <div
+            ref={scrollRef}
+            className="max-h-96 overflow-y-auto scrollbar-visible"
+            onScroll={checkScroll}
+          >
             {/* Parent directory */}
             {browseData?.parent_path && (
               <button
@@ -272,7 +292,20 @@ export default function FileBrowser({ onLabelOpened }: FileBrowserProps) {
             )}
           </div>
         )}
+
+        {/* Scroll fade indicator */}
+        {canScrollDown && (
+          <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white dark:from-nasa-gray-800 to-transparent pointer-events-none" />
+        )}
       </div>
+
+      {/* Item count */}
+      {browseData && browseData.entries.length > 0 && (
+        <p className="text-xs text-gray-400 dark:text-nasa-gray-500 text-right">
+          {browseData.entries.length} items
+          {canScrollDown && " · scroll for more"}
+        </p>
+      )}
     </div>
   );
 }

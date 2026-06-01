@@ -58,4 +58,31 @@
   .dark .input-field {
     @apply bg-nasa-gray-900/60 border-nasa-gray-600/50 text-nasa-gray-100 focus:border-nasa-blue/70;
   }
+
+  /* Always-visible scrollbar for file browser */
+  .scrollbar-visible {
+    scrollbar-width: thin;
+    scrollbar-color: #c4c9d0 transparent;
+  }
+
+  .dark .scrollbar-visible {
+    scrollbar-color: #3D4F65 transparent;
+  }
+
+  .scrollbar-visible::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .scrollbar-visible::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-visible::-webkit-scrollbar-thumb {
+    background-color: #c4c9d0;
+    border-radius: 3px;
+  }
+
+  .dark .scrollbar-visible::-webkit-scrollbar-thumb {
+    background-color: #3D4F65;
+  }
 }
