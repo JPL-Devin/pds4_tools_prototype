@@ -5,6 +5,7 @@ import TableViewer from "./components/TableViewer";
 import PlotPanel from "./components/PlotPanel";
 import LabelView from "./components/LabelView";
 import ImageViewer from "./components/ImageViewer";
+import { useTheme } from "./ThemeContext";
 import type { LabelUploadResponse, StructureSummary } from "./services/api";
 
 type Tab = "table" | "plot" | "image" | "label";
@@ -14,6 +15,7 @@ export default function App() {
   const [selectedStructure, setSelectedStructure] =
     useState<StructureSummary | null>(null);
   const [activeTab, setActiveTab] = useState<Tab>("table");
+  const { theme, toggleTheme } = useTheme();
 
   const handleUploadSuccess = (result: LabelUploadResponse) => {
     setLabel(result);
@@ -49,7 +51,7 @@ export default function App() {
       className={`px-5 py-2.5 text-sm font-medium transition-all relative ${
         activeTab === tab
           ? "text-nasa-blue"
-          : "text-nasa-gray-400 hover:text-nasa-gray-200"
+          : "text-gray-400 hover:text-gray-600 dark:text-nasa-gray-400 dark:hover:text-nasa-gray-200"
       }`}
       onClick={() => setActiveTab(tab)}
     >
@@ -60,26 +62,49 @@ export default function App() {
     </button>
   );
 
+  const logoSrc =
+    theme === "dark"
+      ? "/assets/logo/pds-view-logo-dark-background.svg"
+      : "/assets/logo/pds-view-logo-light-background.svg";
+
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-white dark:bg-nasa-gray-950">
       {/* Header */}
-      <header className="bg-nasa-gray-900 border-b border-nasa-gray-700/50 px-6 py-3.5 flex items-center gap-5">
+      <header className="bg-gray-900 dark:bg-nasa-gray-900 border-b border-gray-800 dark:border-nasa-gray-700/50 px-6 py-3.5 flex items-center gap-5">
         <div className="flex items-center gap-3">
-          <img src="/logo.svg" alt="PDS View" className="w-8 h-8" />
+          <img src={logoSrc} alt="PDS View" className="w-8 h-8" />
           <h1 className="text-lg font-heading font-bold text-white tracking-tight">
             PDS View
           </h1>
         </div>
-        <div className="h-5 w-px bg-nasa-gray-700/60" />
-        <span className="text-nasa-gray-400 text-sm font-light">
+        <div className="h-5 w-px bg-gray-700 dark:bg-nasa-gray-700/60" />
+        <span className="text-gray-400 dark:text-nasa-gray-400 text-sm font-light">
           Planetary Data System Data Explorer
         </span>
+        <div className="flex-1" />
+        {/* Theme toggle */}
+        <button
+          onClick={toggleTheme}
+          className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 dark:hover:bg-nasa-gray-800 transition-colors"
+          aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
+          title={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
+        >
+          {theme === "light" ? (
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
+            </svg>
+          ) : (
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
+            </svg>
+          )}
+        </button>
       </header>
 
       <div className="flex flex-1 overflow-hidden">
         {/* Left sidebar */}
-        <aside className="w-80 bg-nasa-gray-900/80 border-r border-nasa-gray-700/50 flex flex-col overflow-hidden">
-          <div className="p-5 border-b border-nasa-gray-700/40">
+        <aside className="w-80 bg-gray-50 dark:bg-nasa-gray-900/80 border-r border-gray-200 dark:border-nasa-gray-700/50 flex flex-col overflow-hidden">
+          <div className="p-5 border-b border-gray-200 dark:border-nasa-gray-700/40">
             <FileUpload onSuccess={handleUploadSuccess} />
           </div>
           {label && (
@@ -94,11 +119,11 @@ export default function App() {
         </aside>
 
         {/* Main content */}
-        <main className="flex-1 flex flex-col overflow-hidden bg-nasa-gray-950">
+        <main className="flex-1 flex flex-col overflow-hidden bg-gray-50 dark:bg-nasa-gray-950">
           {label && selectedStructure ? (
             <>
               {/* Tabs */}
-              <div className="flex border-b border-nasa-gray-700/40 bg-nasa-gray-900/60 px-4">
+              <div className="flex border-b border-gray-200 dark:border-nasa-gray-700/40 bg-white dark:bg-nasa-gray-900/60 px-4">
                 {isTable && (
                   <>
                     {tabButton("table", "Table Data")}
@@ -137,19 +162,24 @@ export default function App() {
           ) : (
             <div className="flex-1 flex items-center justify-center">
               <div className="text-center">
-                <div className="mb-6 opacity-30">
+                <div className="mb-6 opacity-20">
                   <img
-                    src="/logo.svg"
+                    src="/assets/logo/pds-view-logo-light-background.svg"
                     alt=""
-                    className="w-16 h-16 mx-auto"
+                    className="w-16 h-16 mx-auto dark:hidden"
+                  />
+                  <img
+                    src="/assets/logo/pds-view-logo-dark-background.svg"
+                    alt=""
+                    className="w-16 h-16 mx-auto hidden dark:block"
                   />
                 </div>
-                <p className="text-xl font-heading font-medium text-nasa-gray-300 mb-2">
+                <p className="text-xl font-heading font-medium text-gray-500 dark:text-nasa-gray-300 mb-2">
                   {label
                     ? "Select a data structure from the sidebar"
                     : "Upload a PDS4 label to get started"}
                 </p>
-                <p className="text-sm text-nasa-gray-500">
+                <p className="text-sm text-gray-400 dark:text-nasa-gray-500">
                   Supports .xml and .lblx PDS4 label files
                 </p>
               </div>

@@ -196,14 +196,14 @@ export default function FileUpload({ onSuccess }: FileUploadProps) {
 
   return (
     <div className="space-y-3">
-      <h2 className="text-xs font-heading font-semibold text-nasa-gray-400 uppercase tracking-widest">
+      <h2 className="text-xs font-heading font-semibold text-gray-400 dark:text-nasa-gray-400 uppercase tracking-widest">
         Upload Label
       </h2>
       <div
         className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-all ${
           isDragging
             ? "border-nasa-blue bg-nasa-blue/10 shadow-lg"
-            : "border-nasa-gray-600/50 hover:border-nasa-gray-500/70 hover:bg-nasa-gray-800/30"
+            : "border-gray-300 hover:border-gray-400 hover:bg-gray-100 dark:border-nasa-gray-600/50 dark:hover:border-nasa-gray-500/70 dark:hover:bg-nasa-gray-800/30"
         }`}
         onDragOver={(e) => {
           e.preventDefault();
@@ -213,15 +213,15 @@ export default function FileUpload({ onSuccess }: FileUploadProps) {
         onDrop={handleDrop}
         onClick={() => fileInputRef.current?.click()}
       >
-        <div className="text-nasa-gray-500 mb-2">
+        <div className="text-gray-400 dark:text-nasa-gray-500 mb-2">
           <svg className="w-8 h-8 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
           </svg>
         </div>
-        <p className="text-sm text-nasa-gray-300 font-medium">
+        <p className="text-sm text-gray-600 dark:text-nasa-gray-300 font-medium">
           Drop label + data files here
         </p>
-        <p className="text-xs text-nasa-gray-500 mt-1">
+        <p className="text-xs text-gray-400 dark:text-nasa-gray-500 mt-1">
           Or drop a folder, or click to browse
         </p>
         <input
@@ -234,19 +234,19 @@ export default function FileUpload({ onSuccess }: FileUploadProps) {
       </div>
 
       {labelFile && (
-        <div className="text-xs space-y-3 bg-nasa-gray-800/40 rounded-lg p-3 border border-nasa-gray-700/30">
+        <div className="text-xs space-y-3 bg-gray-50 dark:bg-nasa-gray-800/40 rounded-lg p-3 border border-gray-200 dark:border-nasa-gray-700/30">
           <div className="flex items-center gap-2">
             <svg className="w-4 h-4 text-nasa-blue flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
             </svg>
-            <span className="text-white font-medium truncate">{labelFile.name}</span>
+            <span className="text-gray-900 dark:text-white font-medium truncate">{labelFile.name}</span>
           </div>
 
           {referencedFiles.length > 0 && (
             <div className="space-y-2">
               {requiredFiles.length > 0 && (
                 <div>
-                  <p className="text-nasa-gray-400 mb-1.5 font-medium">Required data files:</p>
+                  <p className="text-gray-500 dark:text-nasa-gray-400 mb-1.5 font-medium">Required data files:</p>
                   <ul className="space-y-1">
                     {requiredFiles.map((ref) => {
                       const found = dataFileNames.has(ref.name);
@@ -255,11 +255,11 @@ export default function FileUpload({ onSuccess }: FileUploadProps) {
                           <span
                             className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${found ? "bg-green-400" : "bg-amber-400"}`}
                           />
-                          <span className={found ? "text-nasa-gray-200" : "text-amber-300"}>
+                          <span className={found ? "text-gray-700 dark:text-nasa-gray-200" : "text-amber-600 dark:text-amber-300"}>
                             {ref.name}
                           </span>
                           {found && (
-                            <span className="text-nasa-gray-600 text-[10px]">ready</span>
+                            <span className="text-gray-400 dark:text-nasa-gray-600 text-[10px]">ready</span>
                           )}
                         </li>
                       );
@@ -270,20 +270,20 @@ export default function FileUpload({ onSuccess }: FileUploadProps) {
 
               {optionalFiles.length > 0 && (
                 <div>
-                  <p className="text-nasa-gray-500 mb-1.5">Supplemental (optional):</p>
+                  <p className="text-gray-400 dark:text-nasa-gray-500 mb-1.5">Supplemental (optional):</p>
                   <ul className="space-y-1">
                     {optionalFiles.map((ref) => {
                       const found = dataFileNames.has(ref.name);
                       return (
                         <li key={ref.name} className="flex items-center gap-2 pl-1">
                           <span
-                            className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${found ? "bg-green-400" : "bg-nasa-gray-600"}`}
+                            className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${found ? "bg-green-400" : "bg-gray-300 dark:bg-nasa-gray-600"}`}
                           />
-                          <span className={found ? "text-nasa-gray-200" : "text-nasa-gray-500"}>
+                          <span className={found ? "text-gray-700 dark:text-nasa-gray-200" : "text-gray-400 dark:text-nasa-gray-500"}>
                             {ref.name}
                           </span>
                           {found && (
-                            <span className="text-nasa-gray-600 text-[10px]">ready</span>
+                            <span className="text-gray-400 dark:text-nasa-gray-600 text-[10px]">ready</span>
                           )}
                         </li>
                       );
@@ -329,7 +329,7 @@ export default function FileUpload({ onSuccess }: FileUploadProps) {
                 : "View Data"}
           </button>
           <button
-            className="w-full text-xs text-nasa-gray-400 hover:text-nasa-gray-200 transition-colors py-1"
+            className="w-full text-xs text-gray-400 dark:text-nasa-gray-400 hover:text-gray-600 dark:hover:text-nasa-gray-200 transition-colors py-1"
             onClick={handleViewLabelOnly}
             disabled={isUploading}
           >
@@ -339,7 +339,7 @@ export default function FileUpload({ onSuccess }: FileUploadProps) {
       )}
 
       {error && (
-        <p className="text-nasa-red text-xs bg-nasa-red/5 border border-nasa-red/20 rounded-lg px-3 py-2">
+        <p className="text-red-600 dark:text-nasa-red text-xs bg-red-50 dark:bg-nasa-red/5 border border-red-200 dark:border-nasa-red/20 rounded-lg px-3 py-2">
           {error}
         </p>
       )}

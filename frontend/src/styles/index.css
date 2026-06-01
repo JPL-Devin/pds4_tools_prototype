@@ -6,7 +6,13 @@
 
 @layer base {
   body {
-    @apply bg-nasa-gray-950 text-nasa-gray-100 font-body antialiased;
+    @apply bg-white text-gray-900 font-body antialiased;
+  }
+
+  .dark body,
+  body.dark,
+  :root.dark body {
+    @apply bg-nasa-gray-950 text-nasa-gray-100;
   }
 
   h1,
@@ -30,14 +36,26 @@
   }
 
   .btn-secondary {
-    @apply bg-nasa-gray-700/60 hover:bg-nasa-gray-600/60 text-nasa-gray-100 font-medium py-2 px-4 rounded-lg border border-nasa-gray-600/50 transition-all duration-200 hover:border-nasa-gray-500/50;
+    @apply bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg border border-gray-200 transition-all duration-200 hover:border-gray-300;
+  }
+
+  .dark .btn-secondary {
+    @apply bg-nasa-gray-700/60 hover:bg-nasa-gray-600/60 text-nasa-gray-100 border-nasa-gray-600/50 hover:border-nasa-gray-500/50;
   }
 
   .card {
-    @apply bg-nasa-gray-800/80 backdrop-blur-sm rounded-xl border border-nasa-gray-700/50 p-5 shadow-card;
+    @apply bg-white rounded-xl border border-gray-200 p-5 shadow-sm;
+  }
+
+  .dark .card {
+    @apply bg-nasa-gray-800/80 backdrop-blur-sm border-nasa-gray-700/50 shadow-card;
   }
 
   .input-field {
-    @apply bg-nasa-gray-900/60 border border-nasa-gray-600/50 text-nasa-gray-100 rounded-lg px-3 py-2 transition-all duration-200 focus:outline-none focus:border-nasa-blue/70 focus:ring-2 focus:ring-nasa-blue/20;
+    @apply bg-gray-50 border border-gray-300 text-gray-900 rounded-lg px-3 py-2 transition-all duration-200 focus:outline-none focus:border-nasa-blue focus:ring-2 focus:ring-nasa-blue/20;
+  }
+
+  .dark .input-field {
+    @apply bg-nasa-gray-900/60 border-nasa-gray-600/50 text-nasa-gray-100 focus:border-nasa-blue/70;
   }
 }

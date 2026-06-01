@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Plot from "react-plotly.js";
 import { getPlotData, getTableMetadata } from "../services/api";
+import { useTheme } from "../ThemeContext";
 import type {
   PlotDataResponse,
   PlotSpec,
@@ -34,6 +35,7 @@ export default function PlotPanel({
   const [plotData, setPlotData] = useState<PlotDataResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { theme } = useTheme();
 
   useEffect(() => {
     getTableMetadata(labelId, structureIndex).then((m) => {
@@ -83,11 +85,16 @@ export default function PlotPanel({
     }
   };
 
+  const isDark = theme === "dark";
+  const plotColors = isDark
+    ? { paper: "#2E3F54", plot: "#1F2F42", font: "#D0D7E0", grid: "#3D4F65", zero: "#516175" }
+    : { paper: "#FFFFFF", plot: "#F9FAFB", font: "#374151", grid: "#E5E7EB", zero: "#D1D5DB" };
+
   if (!meta) {
     return (
-      <div className="flex items-center justify-center h-64 text-nasa-gray-400">
+      <div className="flex items-center justify-center h-64 text-gray-400 dark:text-nasa-gray-400">
         <div className="text-center">
-          <div className="w-6 h-6 border-2 border-nasa-gray-600 border-t-nasa-blue rounded-full animate-spin mx-auto mb-3" />
+          <div className="w-6 h-6 border-2 border-gray-300 dark:border-nasa-gray-600 border-t-nasa-blue rounded-full animate-spin mx-auto mb-3" />
           Loading metadata...
         </div>
       </div>
@@ -101,7 +108,7 @@ export default function PlotPanel({
         <div className="flex flex-wrap gap-4 items-end">
           {/* Plot type */}
           <div>
-            <label className="block text-xs text-nasa-gray-400 mb-1.5 font-medium">
+            <label className="block text-xs text-gray-500 dark:text-nasa-gray-400 mb-1.5 font-medium">
               Plot Type
             </label>
             <select
@@ -119,7 +126,7 @@ export default function PlotPanel({
 
           {/* X column */}
           <div>
-            <label className="block text-xs text-nasa-gray-400 mb-1.5 font-medium">
+            <label className="block text-xs text-gray-500 dark:text-nasa-gray-400 mb-1.5 font-medium">
               {plotType === "histogram" ? "Column" : "X Axis"}
             </label>
             <select
@@ -140,7 +147,7 @@ export default function PlotPanel({
           {/* Y column */}
           {needsY && (
             <div>
-              <label className="block text-xs text-nasa-gray-400 mb-1.5 font-medium">
+              <label className="block text-xs text-gray-500 dark:text-nasa-gray-400 mb-1.5 font-medium">
                 Y Axis
               </label>
               <select
@@ -162,7 +169,7 @@ export default function PlotPanel({
           {/* Color column for scatter */}
           {plotType === "scatter" && (
             <div>
-              <label className="block text-xs text-nasa-gray-400 mb-1.5 font-medium">
+              <label className="block text-xs text-gray-500 dark:text-nasa-gray-400 mb-1.5 font-medium">
                 Color By
               </label>
               <select
@@ -183,7 +190,7 @@ export default function PlotPanel({
           {/* Bins for histogram */}
           {plotType === "histogram" && (
             <div>
-              <label className="block text-xs text-nasa-gray-400 mb-1.5 font-medium">
+              <label className="block text-xs text-gray-500 dark:text-nasa-gray-400 mb-1.5 font-medium">
                 Bins
               </label>
               <input
@@ -208,7 +215,7 @@ export default function PlotPanel({
       </div>
 
       {error && (
-        <p className="text-nasa-red text-sm bg-nasa-red/5 border border-nasa-red/20 rounded-lg px-3 py-2">
+        <p className="text-red-600 dark:text-nasa-red text-sm bg-red-50 dark:bg-nasa-red/5 border border-red-200 dark:border-nasa-red/20 rounded-lg px-3 py-2">
           {error}
         </p>
       )}
@@ -220,19 +227,19 @@ export default function PlotPanel({
             data={plotData.data.traces}
             layout={{
               ...plotData.layout,
-              paper_bgcolor: "#2E3F54",
-              plot_bgcolor: "#1F2F42",
-              font: { color: "#D0D7E0", family: "Public Sans" },
+              paper_bgcolor: plotColors.paper,
+              plot_bgcolor: plotColors.plot,
+              font: { color: plotColors.font, family: "Public Sans" },
               margin: { t: 40, r: 20, b: 50, l: 60 },
               xaxis: {
                 ...plotData.layout.xaxis,
-                gridcolor: "#3D4F65",
-                zerolinecolor: "#516175",
+                gridcolor: plotColors.grid,
+                zerolinecolor: plotColors.zero,
               },
               yaxis: {
                 ...plotData.layout.yaxis,
-                gridcolor: "#3D4F65",
-                zerolinecolor: "#516175",
+                gridcolor: plotColors.grid,
+                zerolinecolor: plotColors.zero,
               },
             }}
             config={{

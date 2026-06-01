@@ -59,7 +59,7 @@ export default function LabelView({ labelId }: LabelViewProps) {
 
   if (error) {
     return (
-      <div className="card border-nasa-red/30 bg-nasa-red/5 text-nasa-red">
+      <div className="card border-red-200 dark:border-nasa-red/30 bg-red-50 dark:bg-nasa-red/5 text-red-600 dark:text-nasa-red">
         {error}
       </div>
     );
@@ -67,9 +67,9 @@ export default function LabelView({ labelId }: LabelViewProps) {
 
   if (!tree) {
     return (
-      <div className="flex items-center justify-center h-64 text-nasa-gray-400">
+      <div className="flex items-center justify-center h-64 text-gray-400 dark:text-nasa-gray-400">
         <div className="text-center">
-          <div className="w-6 h-6 border-2 border-nasa-gray-600 border-t-nasa-blue rounded-full animate-spin mx-auto mb-3" />
+          <div className="w-6 h-6 border-2 border-gray-300 dark:border-nasa-gray-600 border-t-nasa-blue rounded-full animate-spin mx-auto mb-3" />
           Loading label...
         </div>
       </div>
@@ -82,7 +82,7 @@ export default function LabelView({ labelId }: LabelViewProps) {
     <div className="space-y-5">
       {/* Product type header */}
       <div>
-        <h2 className="text-lg font-heading font-semibold text-white">
+        <h2 className="text-lg font-heading font-semibold text-gray-900 dark:text-white">
           {humanizeTag(tree.tag)}
         </h2>
       </div>
@@ -99,9 +99,9 @@ export default function LabelView({ labelId }: LabelViewProps) {
       </div>
 
       {/* Raw XML toggle */}
-      <div className="border-t border-nasa-gray-700/40 pt-4">
+      <div className="border-t border-gray-200 dark:border-nasa-gray-700/40 pt-4">
         <button
-          className="text-sm text-nasa-gray-400 hover:text-nasa-gray-200 transition-colors flex items-center gap-2"
+          className="text-sm text-gray-400 dark:text-nasa-gray-400 hover:text-gray-600 dark:hover:text-nasa-gray-200 transition-colors flex items-center gap-2"
           onClick={() => setShowRawXml(!showRawXml)}
         >
           <span className={`transition-transform inline-block ${showRawXml ? "" : "-rotate-90"}`}>
@@ -133,10 +133,10 @@ function MetadataSection({ title, node }: { title: string; node: XmlNode }) {
         className="w-full flex items-center justify-between text-left mb-3"
         onClick={() => setExpanded(!expanded)}
       >
-        <h3 className="text-sm font-heading font-semibold text-nasa-gray-200 uppercase tracking-wider">
+        <h3 className="text-sm font-heading font-semibold text-gray-600 dark:text-nasa-gray-200 uppercase tracking-wider">
           {title}
         </h3>
-        <span className={`text-nasa-gray-500 transition-transform text-xs ${expanded ? "" : "-rotate-90"}`}>
+        <span className={`text-gray-400 dark:text-nasa-gray-500 transition-transform text-xs ${expanded ? "" : "-rotate-90"}`}>
           {"\u25BC"}
         </span>
       </button>
@@ -144,7 +144,7 @@ function MetadataSection({ title, node }: { title: string; node: XmlNode }) {
       {expanded && (
         <div className="space-y-1">
           {node.text && !node.children?.length && (
-            <p className="text-sm text-nasa-gray-200">{node.text}</p>
+            <p className="text-sm text-gray-700 dark:text-nasa-gray-200">{node.text}</p>
           )}
           {node.children && (
             <MetadataContent nodes={node.children} depth={0} />
@@ -157,7 +157,7 @@ function MetadataSection({ title, node }: { title: string; node: XmlNode }) {
 
 function MetadataContent({ nodes, depth }: { nodes: XmlNode[]; depth: number }) {
   return (
-    <div className={depth > 0 ? "pl-4 border-l border-nasa-gray-700/30 ml-1" : ""}>
+    <div className={depth > 0 ? "pl-4 border-l border-gray-200 dark:border-nasa-gray-700/30 ml-1" : ""}>
       {nodes.map((child, i) => (
         <MetadataItem key={`${child.tag}-${i}`} node={child} depth={depth} />
       ))}
@@ -174,13 +174,13 @@ function MetadataItem({ node, depth }: { node: XmlNode; depth: number }) {
   if (isLeaf) {
     return (
       <div className="flex items-baseline gap-3 py-1.5 group">
-        <span className="text-xs text-nasa-gray-400 min-w-[140px] flex-shrink-0 font-medium">
+        <span className="text-xs text-gray-400 dark:text-nasa-gray-400 min-w-[140px] flex-shrink-0 font-medium">
           {label}
         </span>
-        <span className="text-sm text-nasa-gray-100 break-all">
+        <span className="text-sm text-gray-800 dark:text-nasa-gray-100 break-all">
           {node.text || "—"}
           {node.attributes && Object.keys(node.attributes).length > 0 && (
-            <span className="text-xs text-nasa-gray-500 ml-2">
+            <span className="text-xs text-gray-400 dark:text-nasa-gray-500 ml-2">
               {Object.entries(node.attributes)
                 .filter(([k]) => k !== "nilReason")
                 .map(([k, v]) => `${k}: ${v}`)
@@ -198,8 +198,8 @@ function MetadataItem({ node, depth }: { node: XmlNode; depth: number }) {
   if (isFlat) {
     return (
       <div className="py-2">
-        <p className="text-xs font-medium text-nasa-gray-300 mb-1">{label}</p>
-        <div className="bg-nasa-gray-900/40 rounded-lg p-3 space-y-0.5">
+        <p className="text-xs font-medium text-gray-500 dark:text-nasa-gray-300 mb-1">{label}</p>
+        <div className="bg-gray-50 dark:bg-nasa-gray-900/40 rounded-lg p-3 space-y-0.5">
           {node.children!.map((child, i) => (
             <MetadataItem key={`${child.tag}-${i}`} node={child} depth={depth + 1} />
           ))}
@@ -210,7 +210,7 @@ function MetadataItem({ node, depth }: { node: XmlNode; depth: number }) {
 
   return (
     <div className="py-2">
-      <p className="text-xs font-semibold text-nasa-blue-light uppercase tracking-wider mb-2">
+      <p className="text-xs font-semibold text-nasa-blue dark:text-nasa-blue-light uppercase tracking-wider mb-2">
         {label}
       </p>
       <MetadataContent nodes={node.children!} depth={depth + 1} />
@@ -228,36 +228,36 @@ function RawXmlNode({ node, depth }: { node: XmlNode; depth: number }) {
   return (
     <div>
       <div
-        className="flex items-start py-0.5 hover:bg-nasa-gray-700/30 rounded-sm cursor-pointer"
+        className="flex items-start py-0.5 hover:bg-gray-100 dark:hover:bg-nasa-gray-700/30 rounded-sm cursor-pointer"
         style={{ paddingLeft: `${indent}px` }}
         onClick={() => hasChildren && setExpanded(!expanded)}
       >
         {hasChildren ? (
-          <span className={`w-4 flex-shrink-0 select-none transition-transform text-nasa-gray-500 ${expanded ? "" : "-rotate-90"}`}>
+          <span className={`w-4 flex-shrink-0 select-none transition-transform text-gray-400 dark:text-nasa-gray-500 ${expanded ? "" : "-rotate-90"}`}>
             {"\u25BC"}
           </span>
         ) : (
           <span className="w-4 flex-shrink-0" />
         )}
-        <span className="text-nasa-blue-light">&lt;{node.tag}</span>
+        <span className="text-nasa-blue dark:text-nasa-blue-light">&lt;{node.tag}</span>
         {node.attributes &&
           Object.entries(node.attributes).map(([k, v]) => (
             <span key={k}>
-              <span className="text-nasa-gray-400"> {k}=</span>
-              <span className="text-emerald-400/80">&quot;{v}&quot;</span>
+              <span className="text-gray-400 dark:text-nasa-gray-400"> {k}=</span>
+              <span className="text-emerald-600 dark:text-emerald-400/80">&quot;{v}&quot;</span>
             </span>
           ))}
         {!hasChildren && !node.text && (
-          <span className="text-nasa-blue-light"> /&gt;</span>
+          <span className="text-nasa-blue dark:text-nasa-blue-light"> /&gt;</span>
         )}
         {!hasChildren && node.text && (
           <>
-            <span className="text-nasa-blue-light">&gt;</span>
-            <span className="text-nasa-gray-100 mx-1">{node.text}</span>
-            <span className="text-nasa-blue-light">&lt;/{node.tag}&gt;</span>
+            <span className="text-nasa-blue dark:text-nasa-blue-light">&gt;</span>
+            <span className="text-gray-800 dark:text-nasa-gray-100 mx-1">{node.text}</span>
+            <span className="text-nasa-blue dark:text-nasa-blue-light">&lt;/{node.tag}&gt;</span>
           </>
         )}
-        {hasChildren && <span className="text-nasa-blue-light">&gt;</span>}
+        {hasChildren && <span className="text-nasa-blue dark:text-nasa-blue-light">&gt;</span>}
       </div>
       {hasChildren && expanded && (
         <>
@@ -265,7 +265,7 @@ function RawXmlNode({ node, depth }: { node: XmlNode; depth: number }) {
             <RawXmlNode key={`${child.tag}-${i}`} node={child} depth={depth + 1} />
           ))}
           <div
-            className="py-0.5 text-nasa-blue-light"
+            className="py-0.5 text-nasa-blue dark:text-nasa-blue-light"
             style={{ paddingLeft: `${indent + 18}px` }}
           >
             &lt;/{node.tag}&gt;

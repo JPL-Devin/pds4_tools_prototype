@@ -79,7 +79,7 @@ export default function TableViewer({
 
   if (error) {
     return (
-      <div className="card border-nasa-red/30 bg-nasa-red/5 text-nasa-red">
+      <div className="card border-red-200 dark:border-nasa-red/30 bg-red-50 dark:bg-nasa-red/5 text-red-600 dark:text-nasa-red">
         {error}
       </div>
     );
@@ -87,9 +87,9 @@ export default function TableViewer({
 
   if (!meta || !tableData) {
     return (
-      <div className="flex items-center justify-center h-64 text-nasa-gray-400">
+      <div className="flex items-center justify-center h-64 text-gray-400 dark:text-nasa-gray-400">
         <div className="text-center">
-          <div className="w-6 h-6 border-2 border-nasa-gray-600 border-t-nasa-blue rounded-full animate-spin mx-auto mb-3" />
+          <div className="w-6 h-6 border-2 border-gray-300 dark:border-nasa-gray-600 border-t-nasa-blue rounded-full animate-spin mx-auto mb-3" />
           Loading table data...
         </div>
       </div>
@@ -104,10 +104,10 @@ export default function TableViewer({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-heading font-semibold text-white">
+          <h2 className="text-lg font-heading font-semibold text-gray-900 dark:text-white">
             {meta.name}
           </h2>
-          <p className="text-sm text-nasa-gray-400 mt-0.5">
+          <p className="text-sm text-gray-500 dark:text-nasa-gray-400 mt-0.5">
             {meta.record_count.toLocaleString()} records · {meta.fields.length}{" "}
             fields · {meta.structure_type}
           </p>
@@ -125,12 +125,12 @@ export default function TableViewer({
       <div className="card p-0 overflow-hidden">
         <div className="overflow-auto max-h-[calc(100vh-300px)]">
           <table className="w-full text-sm">
-            <thead className="bg-nasa-gray-800 sticky top-0 z-10">
+            <thead className="bg-gray-50 dark:bg-nasa-gray-800 sticky top-0 z-10">
               <tr>
                 {tableData.columns.map((col) => (
                   <th
                     key={col}
-                    className="px-4 py-2.5 text-left text-xs font-medium text-nasa-gray-300 uppercase tracking-wider cursor-pointer hover:text-white select-none whitespace-nowrap transition-colors"
+                    className="px-4 py-2.5 text-left text-xs font-medium text-gray-500 dark:text-nasa-gray-300 uppercase tracking-wider cursor-pointer hover:text-gray-900 dark:hover:text-white select-none whitespace-nowrap transition-colors"
                     onClick={() => handleSort(col)}
                   >
                     {col}
@@ -143,11 +143,11 @@ export default function TableViewer({
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-nasa-gray-700/40">
+            <tbody className="divide-y divide-gray-100 dark:divide-nasa-gray-700/40">
               {rows.map((row, i) => (
                 <tr
                   key={i}
-                  className="hover:bg-nasa-gray-800/40 transition-colors"
+                  className="hover:bg-gray-50 dark:hover:bg-nasa-gray-800/40 transition-colors"
                 >
                   {tableData.columns.map((col) => {
                     const val = row[col];
@@ -155,7 +155,7 @@ export default function TableViewer({
                     return (
                       <td
                         key={col}
-                        className={`px-4 py-2 whitespace-nowrap text-nasa-gray-200 ${
+                        className={`px-4 py-2 whitespace-nowrap text-gray-700 dark:text-nasa-gray-200 ${
                           isNum ? "font-mono text-right tabular-nums" : ""
                         }`}
                       >
@@ -173,7 +173,7 @@ export default function TableViewer({
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between text-sm">
-          <p className="text-nasa-gray-400">
+          <p className="text-gray-500 dark:text-nasa-gray-400">
             Showing {page * pageSize + 1}–
             {Math.min((page + 1) * pageSize, tableData.total_records)} of{" "}
             {tableData.total_records.toLocaleString()}
@@ -186,7 +186,7 @@ export default function TableViewer({
             >
               Previous
             </button>
-            <span className="px-3 py-1 text-nasa-gray-400 text-xs">
+            <span className="px-3 py-1 text-gray-400 dark:text-nasa-gray-400 text-xs">
               {page + 1} / {totalPages}
             </span>
             <button
@@ -201,7 +201,7 @@ export default function TableViewer({
       )}
 
       {loading && (
-        <div className="text-center text-nasa-gray-400 text-sm">
+        <div className="text-center text-gray-400 dark:text-nasa-gray-400 text-sm">
           Loading...
         </div>
       )}

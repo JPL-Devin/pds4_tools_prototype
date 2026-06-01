@@ -1,38 +1,28 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="100%" height="100%">
-  <!-- Definitions for Gradients -->
-  <defs>
-    <linearGradient id="planetGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#1E293B" />
-      <stop offset="100%" stop-color="#0F172A" />
-    </linearGradient>
-    <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#E33E33" />
-      <stop offset="50%" stop-color="#00F5D4" />
-      <stop offset="100%" stop-color="#E33E33" />
-    </linearGradient>
-  </defs>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
+  <title id="title">PDS View logo</title>
+  <desc id="desc">A minimalist planetary data exploration icon combining a ringed planet, magnifying glass, and ascending data bars.</desc>
+  <g fill="none" stroke="#0F2238" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Magnifying glass / planetary body -->
+    <circle cx="470" cy="445" r="255" stroke-width="38"/>
+    <path d="M650 625 L803 778" stroke-width="64"/>
 
-  <!-- Background (Optional - remove if you want transparency) -->
-  <rect width="64" height="64" rx="12" fill="#0B0F19"/>
+    <!-- Orbital ring -->
+    <path d="M166 557
+             C225 647 430 669 630 575
+             C824 485 920 338 853 272
+             C817 237 751 238 682 267" stroke-width="34"/>
+    <path d="M244 586
+             C320 600 437 591 558 540" stroke-width="34"/>
 
-  <!-- Science Grid Lines (Background Data Element) -->
-  <path d="M12 32H52M32 12V52" stroke="#1E293B" stroke-width="1" stroke-dasharray="2 2" />
-  <circle cx="32" cy="32" r="26" fill="none" stroke="#1E293B" stroke-width="1" stroke-dasharray="4 4" />
+    <!-- Inner orbital accent -->
+    <path d="M318 414
+             C345 329 402 267 493 224" stroke-width="22"/>
 
-  <!-- The Planet Body -->
-  <circle cx="32" cy="32" r="14" fill="url(#planetGrad)" stroke="#00F5D4" stroke-width="2" />
-
-  <!-- Planet Surface Data Texture (Latitude lines) -->
-  <path d="M20 26C24 29 40 29 44 26" fill="none" stroke="#00F5D4" stroke-width="1" opacity="0.4" />
-  <path d="M18 32C22 36 42 36 46 32" fill="none" stroke="#00F5D4" stroke-width="1" opacity="0.4" />
-  <path d="M20 38C24 41 40 41 44 38" fill="none" stroke="#00F5D4" stroke-width="1" opacity="0.4" />
-
-  <!-- The Data Ring (Foreground) -->
-  <!-- Designed to look like a stylized line graph wrapping the planet -->
-  <path d="M6 36 C 12 24, 24 20, 36 28 C 42 32, 52 32, 58 24" fill="none" stroke="url(#ringGrad)" stroke-width="3" stroke-linecap="round" />
-  
-  <!-- Data Nodes (Points on the ring) -->
-  <circle cx="16" cy="29" r="2" fill="#00F5D4" />
-  <circle cx="32" cy="25" r="2.5" fill="#E33E33" />
-  <circle cx="48" cy="29" r="2" fill="#00F5D4" />
+    <!-- Data bars -->
+    <path d="M351 565 L351 636" stroke-width="42"/>
+    <path d="M438 525 L438 636" stroke-width="42"/>
+    <path d="M525 477 L525 636" stroke-width="42"/>
+    <path d="M612 411 L612 636" stroke-width="42"/>
+  </g>
+  <circle cx="588" cy="311" r="26" fill="#0F2238"/>
 </svg>

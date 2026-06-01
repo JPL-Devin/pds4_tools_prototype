@@ -159,7 +159,7 @@ export default function ImageViewer({
 
   if (error) {
     return (
-      <div className="card border-nasa-red/30 bg-nasa-red/5 text-nasa-red">
+      <div className="card border-red-200 dark:border-nasa-red/30 bg-red-50 dark:bg-nasa-red/5 text-red-600 dark:text-nasa-red">
         {error}
       </div>
     );
@@ -167,9 +167,9 @@ export default function ImageViewer({
 
   if (!meta) {
     return (
-      <div className="flex items-center justify-center h-64 text-nasa-gray-400">
+      <div className="flex items-center justify-center h-64 text-gray-400 dark:text-nasa-gray-400">
         <div className="text-center">
-          <div className="w-6 h-6 border-2 border-nasa-gray-600 border-t-nasa-blue rounded-full animate-spin mx-auto mb-3" />
+          <div className="w-6 h-6 border-2 border-gray-300 dark:border-nasa-gray-600 border-t-nasa-blue rounded-full animate-spin mx-auto mb-3" />
           Loading image metadata...
         </div>
       </div>
@@ -181,8 +181,8 @@ export default function ImageViewer({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-heading font-semibold text-white">{meta.name}</h2>
-          <p className="text-sm text-nasa-gray-400 mt-0.5">
+          <h2 className="text-lg font-heading font-semibold text-gray-900 dark:text-white">{meta.name}</h2>
+          <p className="text-sm text-gray-500 dark:text-nasa-gray-400 mt-0.5">
             {meta.width} × {meta.height} · {meta.element_data_type} ·{" "}
             {meta.structure_type}
           </p>
@@ -193,7 +193,7 @@ export default function ImageViewer({
       <div className="card">
         <div className="flex flex-wrap gap-4 items-end">
           <div>
-            <label className="block text-xs text-nasa-gray-400 mb-1.5 font-medium">
+            <label className="block text-xs text-gray-500 dark:text-nasa-gray-400 mb-1.5 font-medium">
               Colormap
             </label>
             <select
@@ -210,7 +210,7 @@ export default function ImageViewer({
           </div>
 
           <div>
-            <label className="block text-xs text-nasa-gray-400 mb-1.5 font-medium">
+            <label className="block text-xs text-gray-500 dark:text-nasa-gray-400 mb-1.5 font-medium">
               Stretch
             </label>
             <select
@@ -227,7 +227,7 @@ export default function ImageViewer({
           </div>
 
           <div>
-            <label className="block text-xs text-nasa-gray-400 mb-1.5 font-medium">
+            <label className="block text-xs text-gray-500 dark:text-nasa-gray-400 mb-1.5 font-medium">
               Low % Clip
             </label>
             <input
@@ -242,7 +242,7 @@ export default function ImageViewer({
           </div>
 
           <div>
-            <label className="block text-xs text-nasa-gray-400 mb-1.5 font-medium">
+            <label className="block text-xs text-gray-500 dark:text-nasa-gray-400 mb-1.5 font-medium">
               High % Clip
             </label>
             <input
@@ -266,18 +266,18 @@ export default function ImageViewer({
 
         {/* Statistics */}
         {stats && (
-          <div className="mt-4 pt-3 border-t border-nasa-gray-700/30 flex flex-wrap gap-5 text-xs text-nasa-gray-400">
+          <div className="mt-4 pt-3 border-t border-gray-200 dark:border-nasa-gray-700/30 flex flex-wrap gap-5 text-xs text-gray-500 dark:text-nasa-gray-400">
             <span>
-              Min: <span className="text-white">{stats.min.toFixed(2)}</span>
+              Min: <span className="text-gray-900 dark:text-white">{stats.min.toFixed(2)}</span>
             </span>
             <span>
-              Max: <span className="text-white">{stats.max.toFixed(2)}</span>
+              Max: <span className="text-gray-900 dark:text-white">{stats.max.toFixed(2)}</span>
             </span>
             <span>
-              Mean: <span className="text-white">{stats.mean.toFixed(2)}</span>
+              Mean: <span className="text-gray-900 dark:text-white">{stats.mean.toFixed(2)}</span>
             </span>
             <span>
-              Std: <span className="text-white">{stats.std.toFixed(2)}</span>
+              Std: <span className="text-gray-900 dark:text-white">{stats.std.toFixed(2)}</span>
             </span>
           </div>
         )}
@@ -295,10 +295,10 @@ export default function ImageViewer({
         onMouseLeave={handleMouseUp}
       >
         {loading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-nasa-gray-900/60 backdrop-blur-sm z-10">
+          <div className="absolute inset-0 flex items-center justify-center bg-white/60 dark:bg-nasa-gray-900/60 backdrop-blur-sm z-10">
             <div className="text-center">
-              <div className="w-6 h-6 border-2 border-nasa-gray-600 border-t-nasa-blue rounded-full animate-spin mx-auto mb-2" />
-              <span className="text-nasa-gray-400 text-sm">Rendering...</span>
+              <div className="w-6 h-6 border-2 border-gray-300 dark:border-nasa-gray-600 border-t-nasa-blue rounded-full animate-spin mx-auto mb-2" />
+              <span className="text-gray-500 dark:text-nasa-gray-400 text-sm">Rendering...</span>
             </div>
           </div>
         )}
@@ -323,7 +323,7 @@ export default function ImageViewer({
 
         {/* Pixel info overlay */}
         {pixelInfo && (
-          <div className="absolute bottom-2 left-2 bg-nasa-gray-900/80 backdrop-blur-sm text-xs text-nasa-gray-200 px-2.5 py-1.5 rounded-md font-mono border border-nasa-gray-700/30">
+          <div className="absolute bottom-2 left-2 bg-white/80 dark:bg-nasa-gray-900/80 backdrop-blur-sm text-xs text-gray-700 dark:text-nasa-gray-200 px-2.5 py-1.5 rounded-md font-mono border border-gray-200 dark:border-nasa-gray-700/30">
             ({pixelInfo.x}, {pixelInfo.y}) | Zoom: {(zoom * 100).toFixed(0)}%
           </div>
         )}
