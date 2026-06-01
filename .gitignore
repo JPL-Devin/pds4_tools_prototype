@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.DS_Store
 
 # C extensions
 *.so
@@ -120,3 +121,16 @@ Thumbs.db
 
 # mypy
 .mypy_cache/
+
+# Ruff
+.ruff_cache/
+
+# pytest
+.pytest_cache/
+
+# Node / Frontend
+node_modules/
+frontend/dist/
+frontend/playwright-report/
+frontend/test-results/
+frontend/tsconfig.tsbuildinfo
