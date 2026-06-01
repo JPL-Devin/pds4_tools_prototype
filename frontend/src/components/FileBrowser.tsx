@@ -15,6 +15,13 @@ interface FileBrowserProps {
   onLabelOpened: (result: LabelUploadResponse) => void;
 }
 
+const LABEL_EXTS = new Set(["xml", "lblx"]);
+
+function isLabelPath(path: string): boolean {
+  const ext = path.split(".").pop()?.toLowerCase() ?? "";
+  return LABEL_EXTS.has(ext);
+}
+
 function formatSize(bytes: number | null): string {
   if (bytes == null) return "";
   if (bytes < 1024) return `${bytes} B`;
@@ -33,6 +40,9 @@ export default function FileBrowser({ onLabelOpened }: FileBrowserProps) {
   const [opening, setOpening] = useState<string | null>(null);
   const [canScrollDown, setCanScrollDown] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [editingPath, setEditingPath] = useState(false);
+  const [pathInput, setPathInput] = useState("");
+  const pathInputRef = useRef<HTMLInputElement>(null);
 
   const checkScroll = useCallback(() => {
     const el = scrollRef.current;
@@ -104,6 +114,33 @@ export default function FileBrowser({ onLabelOpened }: FileBrowserProps) {
     }
   };
 
+  const startEditingPath = () => {
+    setPathInput(browseData?.current_path ?? "/");
+    setEditingPath(true);
+    requestAnimationFrame(() => pathInputRef.current?.select());
+  };
+
+  const handlePathSubmit = async () => {
+    const trimmed = pathInput.trim();
+    setEditingPath(false);
+    if (!trimmed) return;
+
+    if (isLabelPath(trimmed)) {
+      setOpening(trimmed);
+      setError(null);
+      try {
+        const result = await openLabelFromStorage(activeSource, trimmed);
+        onLabelOpened(result);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to open label");
+      } finally {
+        setOpening(null);
+      }
+    } else {
+      browse(trimmed);
+    }
+  };
+
   // Build breadcrumb from current_path
   const breadcrumbs = (() => {
     if (!browseData) return [];
@@ -157,34 +194,76 @@ export default function FileBrowser({ onLabelOpened }: FileBrowserProps) {
         </div>
       )}
 
-      {/* Breadcrumb navigation */}
+      {/* Editable path bar */}
       {browseData && (
-        <div className="flex items-center gap-1 text-sm overflow-x-auto pb-1">
-          <button
-            className="text-gray-500 dark:text-nasa-gray-300 hover:text-gray-700 dark:hover:text-nasa-gray-100 transition-colors flex-shrink-0"
-            onClick={() => browse()}
-            title="Go to root"
+        editingPath ? (
+          <div className="flex items-center gap-1">
+            <input
+              ref={pathInputRef}
+              type="text"
+              className="input-field text-sm flex-1 font-mono py-1.5"
+              value={pathInput}
+              onChange={(e) => setPathInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handlePathSubmit();
+                if (e.key === "Escape") setEditingPath(false);
+              }}
+              onBlur={() => setEditingPath(false)}
+              placeholder="Enter path to directory or label file..."
+            />
+            <button
+              className="btn-primary text-xs py-1.5 px-2.5 flex-shrink-0"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                handlePathSubmit();
+              }}
+            >
+              Go
+            </button>
+          </div>
+        ) : (
+          <div
+            className="flex items-center gap-1 text-sm overflow-x-auto pb-1 cursor-text group rounded-md px-1.5 py-1 -mx-1.5 hover:bg-gray-100 dark:hover:bg-nasa-gray-800/40 transition-colors"
+            onClick={startEditingPath}
+            title="Click to edit path"
           >
-            {activeSource === "s3" ? "S3" : "/"}
-          </button>
-          {breadcrumbs.map((crumb, i) => (
-            <span key={crumb.path} className="flex items-center gap-1 flex-shrink-0">
-              <span className="text-gray-400 dark:text-nasa-gray-500">/</span>
-              {i < breadcrumbs.length - 1 ? (
-                <button
-                  className="text-gray-500 dark:text-nasa-gray-300 hover:text-nasa-blue dark:hover:text-nasa-blue-light transition-colors"
-                  onClick={() => browse(crumb.path)}
-                >
-                  {crumb.label}
-                </button>
-              ) : (
-                <span className="text-gray-800 dark:text-white font-medium">
-                  {crumb.label}
-                </span>
-              )}
+            <button
+              className="text-gray-500 dark:text-nasa-gray-300 hover:text-gray-700 dark:hover:text-nasa-gray-100 transition-colors flex-shrink-0"
+              onClick={(e) => {
+                e.stopPropagation();
+                browse();
+              }}
+              title="Go to root"
+            >
+              {activeSource === "s3" ? "S3" : "/"}
+            </button>
+            {breadcrumbs.map((crumb, i) => (
+              <span key={crumb.path} className="flex items-center gap-1 flex-shrink-0">
+                <span className="text-gray-400 dark:text-nasa-gray-500">/</span>
+                {i < breadcrumbs.length - 1 ? (
+                  <button
+                    className="text-gray-500 dark:text-nasa-gray-300 hover:text-nasa-blue dark:hover:text-nasa-blue-light transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      browse(crumb.path);
+                    }}
+                  >
+                    {crumb.label}
+                  </button>
+                ) : (
+                  <span className="text-gray-800 dark:text-white font-medium">
+                    {crumb.label}
+                  </span>
+                )}
+              </span>
+            ))}
+            <span className="ml-auto text-gray-400 dark:text-nasa-gray-500 opacity-0 group-hover:opacity-100 transition-opacity text-xs flex-shrink-0">
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Z" />
+              </svg>
             </span>
-          ))}
-        </div>
+          </div>
+        )
       )}
 
       {error && (
