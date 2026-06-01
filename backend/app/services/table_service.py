@@ -8,12 +8,13 @@ import numpy as np
 
 
 def compute_histogram(
-    data: list[dict[str, Any]],
-    column: str,
+    data: list[list[Any]],
+    column_index: int,
+    column_name: str,
     nbins: int = 30,
 ) -> dict[str, Any]:
     """Compute histogram data for a numeric column."""
-    values = _extract_numeric(data, column)
+    values = _extract_numeric(data, column_index)
     if not values:
         return {"data": [], "layout": {}}
 
@@ -21,8 +22,6 @@ def compute_histogram(
     arr = arr[np.isfinite(arr)]
     if len(arr) == 0:
         return {"data": [], "layout": {}}
-
-    counts, bin_edges = np.histogram(arr, bins=nbins)
 
     return {
         "data": [{
@@ -32,21 +31,23 @@ def compute_histogram(
             "marker": {"color": "#1052A5"},
         }],
         "layout": {
-            "title": f"Histogram of {column}",
-            "xaxis": {"title": column},
+            "title": f"Histogram of {column_name}",
+            "xaxis": {"title": column_name},
             "yaxis": {"title": "Count"},
         },
     }
 
 
 def compute_line_plot(
-    data: list[dict[str, Any]],
-    x_column: str,
-    y_column: str,
+    data: list[list[Any]],
+    x_index: int,
+    y_index: int,
+    x_name: str,
+    y_name: str,
 ) -> dict[str, Any]:
     """Compute line plot data for two columns."""
-    x_vals = _extract_numeric(data, x_column)
-    y_vals = _extract_numeric(data, y_column)
+    x_vals = _extract_numeric(data, x_index)
+    y_vals = _extract_numeric(data, y_index)
 
     if not x_vals or not y_vals:
         return {"data": [], "layout": {}}
@@ -64,22 +65,25 @@ def compute_line_plot(
             "line": {"color": "#1052A5", "width": 2},
         }],
         "layout": {
-            "title": f"{y_column} vs {x_column}",
-            "xaxis": {"title": x_column},
-            "yaxis": {"title": y_column},
+            "title": f"{y_name} vs {x_name}",
+            "xaxis": {"title": x_name},
+            "yaxis": {"title": y_name},
         },
     }
 
 
 def compute_scatter_plot(
-    data: list[dict[str, Any]],
-    x_column: str,
-    y_column: str,
-    color_column: str | None = None,
+    data: list[list[Any]],
+    x_index: int,
+    y_index: int,
+    x_name: str,
+    y_name: str,
+    color_index: int | None = None,
+    color_name: str | None = None,
 ) -> dict[str, Any]:
     """Compute scatter plot data for two columns."""
-    x_vals = _extract_numeric(data, x_column)
-    y_vals = _extract_numeric(data, y_column)
+    x_vals = _extract_numeric(data, x_index)
+    y_vals = _extract_numeric(data, y_index)
 
     if not x_vals or not y_vals:
         return {"data": [], "layout": {}}
@@ -96,33 +100,35 @@ def compute_scatter_plot(
         "marker": {"color": "#1052A5", "size": 5, "opacity": 0.7},
     }
 
-    if color_column:
-        c_vals = _extract_numeric(data, color_column)
+    if color_index is not None:
+        c_vals = _extract_numeric(data, color_index)
         if c_vals:
             trace["marker"]["color"] = c_vals[:min_len]
             trace["marker"]["colorscale"] = "Viridis"
             trace["marker"]["showscale"] = True
-            trace["marker"]["colorbar"] = {"title": color_column}
+            trace["marker"]["colorbar"] = {"title": color_name or f"Column {color_index}"}
 
     return {
         "data": [trace],
         "layout": {
-            "title": f"{y_column} vs {x_column}",
-            "xaxis": {"title": x_column},
-            "yaxis": {"title": y_column},
+            "title": f"{y_name} vs {x_name}",
+            "xaxis": {"title": x_name},
+            "yaxis": {"title": y_name},
         },
     }
 
 
 def compute_heatmap(
-    data: list[dict[str, Any]],
-    x_column: str,
-    y_column: str,
+    data: list[list[Any]],
+    x_index: int,
+    y_index: int,
+    x_name: str,
+    y_name: str,
     nbins: int = 50,
 ) -> dict[str, Any]:
     """Compute 2D histogram / heatmap for two columns."""
-    x_vals = _extract_numeric(data, x_column)
-    y_vals = _extract_numeric(data, y_column)
+    x_vals = _extract_numeric(data, x_index)
+    y_vals = _extract_numeric(data, y_index)
 
     if not x_vals or not y_vals:
         return {"data": [], "layout": {}}
@@ -148,18 +154,20 @@ def compute_heatmap(
             "colorscale": "Viridis",
         }],
         "layout": {
-            "title": f"Heatmap: {y_column} vs {x_column}",
-            "xaxis": {"title": x_column},
-            "yaxis": {"title": y_column},
+            "title": f"Heatmap: {y_name} vs {x_name}",
+            "xaxis": {"title": x_name},
+            "yaxis": {"title": y_name},
         },
     }
 
 
-def _extract_numeric(data: list[dict[str, Any]], column: str) -> list[float]:
-    """Extract numeric values from a column, skipping non-numeric entries."""
+def _extract_numeric(data: list[list[Any]], column_index: int) -> list[float]:
+    """Extract numeric values from a column by index, skipping non-numeric entries."""
     values: list[float] = []
     for row in data:
-        val = row.get(column)
+        if column_index >= len(row):
+            continue
+        val = row[column_index]
         if val is None:
             continue
         try:

@@ -14,7 +14,7 @@ export default function TableViewer({
   const [meta, setMeta] = useState<TableMetadata | null>(null);
   const [tableData, setTableData] = useState<TableDataResponse | null>(null);
   const [page, setPage] = useState(0);
-  const [sortCol, setSortCol] = useState<string | null>(null);
+  const [sortColIdx, setSortColIdx] = useState<number | null>(null);
   const [sortAsc, setSortAsc] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -22,7 +22,7 @@ export default function TableViewer({
 
   useEffect(() => {
     setPage(0);
-    setSortCol(null);
+    setSortColIdx(null);
     setMeta(null);
     setTableData(null);
     setError(null);
@@ -49,20 +49,21 @@ export default function TableViewer({
       .finally(() => setLoading(false));
   }, [page, labelId, structureIndex]);
 
-  const handleSort = (col: string) => {
-    if (sortCol === col) {
+  const handleSort = (colIdx: number) => {
+    if (sortColIdx === colIdx) {
       setSortAsc(!sortAsc);
     } else {
-      setSortCol(col);
+      setSortColIdx(colIdx);
       setSortAsc(true);
     }
   };
 
-  const sortedData = () => {
-    if (!tableData?.data || !sortCol) return tableData?.data ?? [];
+  const sortedData = (): unknown[][] => {
+    if (!tableData?.data || sortColIdx === null) return tableData?.data ?? [];
+    const idx = sortColIdx;
     return [...tableData.data].sort((a, b) => {
-      const va = a[sortCol];
-      const vb = b[sortCol];
+      const va = a[idx];
+      const vb = b[idx];
       if (va == null && vb == null) return 0;
       if (va == null) return 1;
       if (vb == null) return -1;
@@ -127,14 +128,19 @@ export default function TableViewer({
           <table className="w-full text-sm">
             <thead className="bg-gray-50 dark:bg-nasa-gray-800 sticky top-0 z-10">
               <tr>
-                {tableData.columns.map((col) => (
+                {tableData.columns.map((col, colIdx) => (
                   <th
-                    key={col}
+                    key={colIdx}
                     className="px-4 py-2.5 text-left text-xs font-medium text-gray-500 dark:text-nasa-gray-300 uppercase tracking-wider cursor-pointer hover:text-gray-900 dark:hover:text-white select-none whitespace-nowrap transition-colors"
-                    onClick={() => handleSort(col)}
+                    onClick={() => handleSort(colIdx)}
                   >
                     {col}
-                    {sortCol === col && (
+                    {tableData.columns.filter((c) => c === col).length > 1 && (
+                      <span className="text-gray-400 dark:text-nasa-gray-500 ml-1 text-[10px] normal-case">
+                        [{colIdx + 1}]
+                      </span>
+                    )}
+                    {sortColIdx === colIdx && (
                       <span className="ml-1.5 text-nasa-blue">
                         {sortAsc ? "\u25B2" : "\u25BC"}
                       </span>
@@ -149,12 +155,11 @@ export default function TableViewer({
                   key={i}
                   className="hover:bg-gray-50 dark:hover:bg-nasa-gray-800/40 transition-colors"
                 >
-                  {tableData.columns.map((col) => {
-                    const val = row[col];
+                  {row.map((val, colIdx) => {
                     const isNum = typeof val === "number";
                     return (
                       <td
-                        key={col}
+                        key={colIdx}
                         className={`px-4 py-2 whitespace-nowrap text-gray-700 dark:text-nasa-gray-200 ${
                           isNum ? "font-mono text-right tabular-nums" : ""
                         }`}

@@ -3,6 +3,7 @@ import Plot from "react-plotly.js";
 import { getPlotData, getTableMetadata } from "../services/api";
 import { useTheme } from "../ThemeContext";
 import type {
+  FieldInfo,
   PlotDataResponse,
   PlotSpec,
   TableMetadata,
@@ -28,9 +29,9 @@ export default function PlotPanel({
 }: PlotPanelProps) {
   const [meta, setMeta] = useState<TableMetadata | null>(null);
   const [plotType, setPlotType] = useState<PlotType>("histogram");
-  const [xCol, setXCol] = useState("");
-  const [yCol, setYCol] = useState("");
-  const [colorCol, setColorCol] = useState("");
+  const [xColIdx, setXColIdx] = useState<number | "">("");
+  const [yColIdx, setYColIdx] = useState<number | "">("");
+  const [colorColIdx, setColorColIdx] = useState<number | "">("");
   const [nbins, setNbins] = useState(30);
   const [plotData, setPlotData] = useState<PlotDataResponse | null>(null);
   const [loading, setLoading] = useState(false);
@@ -40,39 +41,46 @@ export default function PlotPanel({
   useEffect(() => {
     getTableMetadata(labelId, structureIndex).then((m) => {
       setMeta(m);
-      const numericFields = m.fields.filter(
-        (f) =>
-          f.data_type.includes("Real") || f.data_type.includes("Integer"),
-      );
-      if (numericFields.length > 0 && numericFields[0]) {
-        setXCol(numericFields[0].name);
+      const numericIndices = m.fields
+        .map((f, i) => ({ f, i }))
+        .filter(
+          ({ f }) =>
+            f.data_type.includes("Real") || f.data_type.includes("Integer"),
+        )
+        .map(({ i }) => i);
+      if (numericIndices.length > 0) {
+        setXColIdx(numericIndices[0]!);
       }
-      if (numericFields.length > 1 && numericFields[1]) {
-        setYCol(numericFields[1].name);
+      if (numericIndices.length > 1) {
+        setYColIdx(numericIndices[1]!);
       }
     });
   }, [labelId, structureIndex]);
 
-  const numericFields =
-    meta?.fields.filter(
-      (f) => f.data_type.includes("Real") || f.data_type.includes("Integer"),
-    ) ?? [];
+  const numericFields: { field: FieldInfo; index: number }[] =
+    meta?.fields
+      .map((f, i) => ({ field: f, index: i }))
+      .filter(
+        ({ field }) =>
+          field.data_type.includes("Real") ||
+          field.data_type.includes("Integer"),
+      ) ?? [];
 
   const needsY = plotType !== "histogram";
 
   const handlePlot = async () => {
-    if (!xCol) return;
-    if (needsY && !yCol) return;
+    if (xColIdx === "") return;
+    if (needsY && yColIdx === "") return;
 
     setLoading(true);
     setError(null);
     try {
       const spec: PlotSpec = {
         plot_type: plotType,
-        x_column: xCol,
-        ...(needsY ? { y_column: yCol } : {}),
-        ...(colorCol && plotType === "scatter"
-          ? { color_column: colorCol }
+        x_column: xColIdx as number,
+        ...(needsY ? { y_column: yColIdx as number } : {}),
+        ...(colorColIdx !== "" && plotType === "scatter"
+          ? { color_column: colorColIdx as number }
           : {}),
         ...(plotType === "histogram" ? { nbins } : {}),
       };
@@ -89,6 +97,12 @@ export default function PlotPanel({
   const plotColors = isDark
     ? { paper: "#2E3F54", plot: "#1F2F42", font: "#D0D7E0", grid: "#3D4F65", zero: "#516175" }
     : { paper: "#FFFFFF", plot: "#F9FAFB", font: "#374151", grid: "#E5E7EB", zero: "#D1D5DB" };
+
+  const fieldLabel = (f: FieldInfo, idx: number): string => {
+    const dupCount = meta?.fields.filter((ff) => ff.name === f.name).length ?? 1;
+    const suffix = dupCount > 1 ? ` [${idx + 1}]` : "";
+    return `${f.name}${suffix}${f.unit ? ` (${f.unit})` : ""}`;
+  };
 
   if (!meta) {
     return (
@@ -131,14 +145,15 @@ export default function PlotPanel({
             </label>
             <select
               className="input-field text-sm"
-              value={xCol}
-              onChange={(e) => setXCol(e.target.value)}
+              value={xColIdx}
+              onChange={(e) =>
+                setXColIdx(e.target.value === "" ? "" : Number(e.target.value))
+              }
             >
               <option value="">Select...</option>
-              {numericFields.map((f) => (
-                <option key={f.name} value={f.name}>
-                  {f.name}
-                  {f.unit ? ` (${f.unit})` : ""}
+              {numericFields.map(({ field, index }) => (
+                <option key={index} value={index}>
+                  {fieldLabel(field, index)}
                 </option>
               ))}
             </select>
@@ -152,14 +167,17 @@ export default function PlotPanel({
               </label>
               <select
                 className="input-field text-sm"
-                value={yCol}
-                onChange={(e) => setYCol(e.target.value)}
+                value={yColIdx}
+                onChange={(e) =>
+                  setYColIdx(
+                    e.target.value === "" ? "" : Number(e.target.value),
+                  )
+                }
               >
                 <option value="">Select...</option>
-                {numericFields.map((f) => (
-                  <option key={f.name} value={f.name}>
-                    {f.name}
-                    {f.unit ? ` (${f.unit})` : ""}
+                {numericFields.map(({ field, index }) => (
+                  <option key={index} value={index}>
+                    {fieldLabel(field, index)}
                   </option>
                 ))}
               </select>
@@ -174,13 +192,17 @@ export default function PlotPanel({
               </label>
               <select
                 className="input-field text-sm"
-                value={colorCol}
-                onChange={(e) => setColorCol(e.target.value)}
+                value={colorColIdx}
+                onChange={(e) =>
+                  setColorColIdx(
+                    e.target.value === "" ? "" : Number(e.target.value),
+                  )
+                }
               >
                 <option value="">None</option>
-                {numericFields.map((f) => (
-                  <option key={f.name} value={f.name}>
-                    {f.name}
+                {numericFields.map(({ field, index }) => (
+                  <option key={index} value={index}>
+                    {fieldLabel(field, index)}
                   </option>
                 ))}
               </select>
@@ -207,7 +229,7 @@ export default function PlotPanel({
           <button
             className="btn-primary text-sm"
             onClick={handlePlot}
-            disabled={loading || !xCol || (needsY && !yCol)}
+            disabled={loading || xColIdx === "" || (needsY && yColIdx === "")}
           >
             {loading ? "Generating..." : "Generate Plot"}
           </button>

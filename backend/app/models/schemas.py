@@ -62,14 +62,14 @@ class TableDataResponse(BaseModel):
     offset: int
     limit: int
     columns: list[str]
-    data: list[dict[str, Any]]
+    data: list[list[Any]]
 
 
 class PlotSpec(BaseModel):
     plot_type: str = Field(description="One of: histogram, line, scatter, heatmap")
-    x_column: str | None = None
-    y_column: str | None = None
-    color_column: str | None = None
+    x_column: int | None = Field(default=None, description="Column index for X axis")
+    y_column: int | None = Field(default=None, description="Column index for Y axis")
+    color_column: int | None = Field(default=None, description="Column index for color")
     nbins: int | None = Field(default=None, description="Number of bins for histogram")
     title: str | None = None
 

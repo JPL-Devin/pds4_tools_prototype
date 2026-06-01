@@ -91,10 +91,12 @@ async def get_table_data(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to read table data: {e}")
 
-    if format == "csv":
-        return _rows_to_csv_response(rows, s.get("fields", []))
+    fields = s.get("fields", [])
+    columns = [f["name"] for f in fields]
 
-    columns = [f["name"] for f in s.get("fields", [])]
+    if format == "csv":
+        return _rows_to_csv_response(rows, columns)
+
     return TableDataResponse(
         label_id=label_id,
         structure_index=structure_index,
@@ -132,22 +134,42 @@ async def create_plot(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to read data: {e}")
 
+    fields = s.get("fields", [])
+    field_count = len(fields)
+
+    def col_name(idx: int) -> str:
+        if 0 <= idx < len(fields):
+            return fields[idx]["name"]
+        return f"Column {idx}"
+
     if spec.plot_type == "histogram":
-        if not spec.x_column:
+        if spec.x_column is None:
             raise HTTPException(status_code=400, detail="x_column required for histogram")
-        result = compute_histogram(all_data, spec.x_column, nbins=spec.nbins or 30)
+        if spec.x_column >= field_count:
+            raise HTTPException(status_code=400, detail=f"x_column index {spec.x_column} out of range")
+        result = compute_histogram(all_data, spec.x_column, col_name(spec.x_column), nbins=spec.nbins or 30)
     elif spec.plot_type == "line":
-        if not spec.x_column or not spec.y_column:
+        if spec.x_column is None or spec.y_column is None:
             raise HTTPException(status_code=400, detail="x_column and y_column required for line plot")
-        result = compute_line_plot(all_data, spec.x_column, spec.y_column)
+        result = compute_line_plot(
+            all_data, spec.x_column, spec.y_column,
+            col_name(spec.x_column), col_name(spec.y_column),
+        )
     elif spec.plot_type == "scatter":
-        if not spec.x_column or not spec.y_column:
+        if spec.x_column is None or spec.y_column is None:
             raise HTTPException(status_code=400, detail="x_column and y_column required for scatter plot")
-        result = compute_scatter_plot(all_data, spec.x_column, spec.y_column, spec.color_column)
+        result = compute_scatter_plot(
+            all_data, spec.x_column, spec.y_column,
+            col_name(spec.x_column), col_name(spec.y_column),
+            spec.color_column, col_name(spec.color_column) if spec.color_column is not None else None,
+        )
     elif spec.plot_type == "heatmap":
-        if not spec.x_column or not spec.y_column:
+        if spec.x_column is None or spec.y_column is None:
             raise HTTPException(status_code=400, detail="x_column and y_column required for heatmap")
-        result = compute_heatmap(all_data, spec.x_column, spec.y_column)
+        result = compute_heatmap(
+            all_data, spec.x_column, spec.y_column,
+            col_name(spec.x_column), col_name(spec.y_column),
+        )
     else:
         raise HTTPException(status_code=400, detail=f"Unknown plot type: {spec.plot_type}")
 
@@ -159,8 +181,8 @@ async def create_plot(
 
 
 def _rows_to_csv_response(
-    rows: list[dict[str, Any]],
-    fields: list[dict[str, Any]],
+    rows: list[list[Any]],
+    columns: list[str],
 ) -> StreamingResponse:
     """Convert rows to a CSV streaming response."""
     output = io.StringIO()
@@ -170,9 +192,8 @@ def _rows_to_csv_response(
             media_type="text/csv",
         )
 
-    columns = [f["name"] for f in fields]
-    writer = csv.DictWriter(output, fieldnames=columns)
-    writer.writeheader()
+    writer = csv.writer(output)
+    writer.writerow(columns)
     for row in rows:
         writer.writerow(row)
 

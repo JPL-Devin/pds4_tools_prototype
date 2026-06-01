@@ -112,14 +112,14 @@ export interface TableDataResponse {
   offset: number;
   limit: number;
   columns: string[];
-  data: Record<string, unknown>[];
+  data: unknown[][];
 }
 
 export interface PlotSpec {
   plot_type: "histogram" | "line" | "scatter" | "heatmap";
-  x_column?: string;
-  y_column?: string;
-  color_column?: string;
+  x_column?: number;
+  y_column?: number;
+  color_column?: number;
   nbins?: number;
   title?: string;
 }

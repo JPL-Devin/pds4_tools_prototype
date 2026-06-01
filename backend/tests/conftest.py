@@ -14,6 +14,8 @@ TABLE_CHARACTER_XML = TEST_DATA_DIR / "table_character" / "Table_Character_Examp
 TABLE_CHARACTER_TAB = TEST_DATA_DIR / "table_character" / "Table_Character_Example.tab"
 ARRAY_2D_IMAGE_XML = TEST_DATA_DIR / "array_2d_image" / "thermal_neutron_map.xml"
 ARRAY_2D_IMAGE_DATA = TEST_DATA_DIR / "array_2d_image" / "thermal_neutron_map.img"
+TABLE_DUP_COLS_XML = TEST_DATA_DIR / "table_character_dup_cols" / "ch3_cht_raw_20230824T12_625085705_v1.xml"
+TABLE_DUP_COLS_CSV = TEST_DATA_DIR / "table_character_dup_cols" / "ch3_cht_raw_20230824T12_625085705_v1.csv"
 
 
 @pytest.fixture
@@ -41,3 +43,13 @@ def array_2d_image_xml() -> Path:
 @pytest.fixture
 def array_2d_image_data() -> Path:
     return ARRAY_2D_IMAGE_DATA
+
+
+@pytest.fixture
+def table_dup_cols_xml() -> Path:
+    return TABLE_DUP_COLS_XML
+
+
+@pytest.fixture
+def table_dup_cols_csv() -> Path:
+    return TABLE_DUP_COLS_CSV

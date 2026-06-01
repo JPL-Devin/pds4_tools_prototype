@@ -97,7 +97,7 @@ def parse_label(xml_path: str | Path) -> dict[str, Any]:
                 continue
 
             local_tag = etree.QName(tag).localname
-            name = _text(child, "pds:name") or _text(child, "pds:local_identifier") or local_tag
+            name = _text(child, "pds:name") or _text(child, "pds:local_identifier") or f"{local_tag} #{idx}"
             local_id = _text(child, "pds:local_identifier")
             offset = _int(child, "pds:offset") or 0
 
@@ -235,8 +235,13 @@ def read_table_data(
     structure: dict[str, Any],
     offset: int = 0,
     limit: int | None = None,
-) -> list[dict[str, Any]]:
-    """Read table data from a PDS4 data file using the structure metadata."""
+) -> list[list[Any]]:
+    """Read table data from a PDS4 data file.
+
+    Returns a list of rows, where each row is a list of values
+    in field order (positional, not name-keyed, to support
+    duplicate column names).
+    """
     data_file = structure.get("data_file")
     if not data_file or not os.path.exists(data_file):
         raise FileNotFoundError(f"Data file not found: {data_file}")
@@ -266,9 +271,9 @@ def _read_character_table(
     record_length: int,
     start: int,
     end: int,
-) -> list[dict[str, Any]]:
+) -> list[list[Any]]:
     """Read fixed-width ASCII table data."""
-    rows: list[dict[str, Any]] = []
+    rows: list[list[Any]] = []
 
     with open(filepath, "rb") as f:
         f.seek(file_offset + start * record_length)
@@ -277,12 +282,12 @@ def _read_character_table(
             if len(record_bytes) < record_length:
                 break
 
-            row: dict[str, Any] = {}
+            row: list[Any] = []
             for field in fields:
                 loc = (field.get("field_location") or 1) - 1
                 length = field.get("field_length") or 0
                 raw = record_bytes[loc : loc + length].decode("ascii", errors="replace").strip()
-                row[field["name"]] = _coerce_value(raw, field.get("data_type", "ASCII_String"))
+                row.append(_coerce_value(raw, field.get("data_type", "ASCII_String")))
 
             rows.append(row)
 
@@ -296,7 +301,7 @@ def _read_binary_table(
     record_length: int,
     start: int,
     end: int,
-) -> list[dict[str, Any]]:
+) -> list[list[Any]]:
     """Read binary table data."""
     type_to_struct: dict[str, str] = {
         "IEEE754MSBSingle": ">f",
@@ -309,7 +314,7 @@ def _read_binary_table(
         "SignedByte": "b",
     }
 
-    rows: list[dict[str, Any]] = []
+    rows: list[list[Any]] = []
     with open(filepath, "rb") as f:
         f.seek(file_offset + start * record_length)
         for _ in range(end - start):
@@ -317,14 +322,14 @@ def _read_binary_table(
             if len(record_bytes) < record_length:
                 break
 
-            row: dict[str, Any] = {}
+            row: list[Any] = []
             for field in fields:
                 loc = (field.get("field_location") or 1) - 1
                 dt = field.get("data_type", "UnsignedByte")
                 fmt = type_to_struct.get(dt, "B")
                 size = struct.calcsize(fmt)
                 val = struct.unpack(fmt, record_bytes[loc : loc + size])[0]
-                row[field["name"]] = float(val) if isinstance(val, (int, float)) else val
+                row.append(float(val) if isinstance(val, (int, float)) else val)
 
             rows.append(row)
 
@@ -337,9 +342,9 @@ def _read_delimited_table(
     file_offset: int,
     start: int,
     end: int,
-) -> list[dict[str, Any]]:
+) -> list[list[Any]]:
     """Read delimited (CSV-like) table data."""
-    rows: list[dict[str, Any]] = []
+    rows: list[list[Any]] = []
 
     with open(filepath, "r", errors="replace") as f:
         f.seek(file_offset)
@@ -349,10 +354,10 @@ def _read_delimited_table(
             if i >= end:
                 break
             values = line.strip().split(",")
-            row: dict[str, Any] = {}
+            row: list[Any] = []
             for j, field in enumerate(fields):
                 raw = values[j].strip().strip('"') if j < len(values) else ""
-                row[field["name"]] = _coerce_value(raw, field.get("data_type", "ASCII_String"))
+                row.append(_coerce_value(raw, field.get("data_type", "ASCII_String")))
             rows.append(row)
 
     return rows

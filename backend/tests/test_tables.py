@@ -34,6 +34,10 @@ def test_get_table_data(client, table_character_xml, table_character_tab):
     assert body["total_records"] > 0
     assert len(body["data"]) <= 10
     assert len(body["columns"]) > 0
+    # Data rows are positional lists, not dicts
+    if body["data"]:
+        assert isinstance(body["data"][0], list)
+        assert len(body["data"][0]) == len(body["columns"])
 
 
 def test_get_table_data_pagination(client, table_character_xml, table_character_tab):
@@ -69,9 +73,13 @@ def test_histogram_plot(client, table_character_xml, table_character_tab):
     if not numeric_fields:
         return
 
+    # Find the index of the first numeric field
+    all_fields = meta["fields"]
+    numeric_idx = next(i for i, f in enumerate(all_fields) if "Real" in f["data_type"] or "Integer" in f["data_type"])
+
     resp = client.post(
         f"/api/tables/{label_id}/0/plot",
-        json={"plot_type": "histogram", "x_column": numeric_fields[0]["name"]},
+        json={"plot_type": "histogram", "x_column": numeric_idx},
     )
     assert resp.status_code == 200
     body = resp.json()
@@ -83,16 +91,17 @@ def test_line_plot(client, table_character_xml, table_character_tab):
     label_id = _upload_label(client, table_character_xml, table_character_tab)
 
     meta = client.get(f"/api/tables/{label_id}/0").json()
-    numeric_fields = [f for f in meta["fields"] if "Real" in f["data_type"] or "Integer" in f["data_type"]]
-    if len(numeric_fields) < 2:
+    all_fields = meta["fields"]
+    numeric_indices = [i for i, f in enumerate(all_fields) if "Real" in f["data_type"] or "Integer" in f["data_type"]]
+    if len(numeric_indices) < 2:
         return
 
     resp = client.post(
         f"/api/tables/{label_id}/0/plot",
         json={
             "plot_type": "line",
-            "x_column": numeric_fields[0]["name"],
-            "y_column": numeric_fields[1]["name"],
+            "x_column": numeric_indices[0],
+            "y_column": numeric_indices[1],
         },
     )
     assert resp.status_code == 200
@@ -104,16 +113,17 @@ def test_scatter_plot(client, table_character_xml, table_character_tab):
     label_id = _upload_label(client, table_character_xml, table_character_tab)
 
     meta = client.get(f"/api/tables/{label_id}/0").json()
-    numeric_fields = [f for f in meta["fields"] if "Real" in f["data_type"] or "Integer" in f["data_type"]]
-    if len(numeric_fields) < 2:
+    all_fields = meta["fields"]
+    numeric_indices = [i for i, f in enumerate(all_fields) if "Real" in f["data_type"] or "Integer" in f["data_type"]]
+    if len(numeric_indices) < 2:
         return
 
     resp = client.post(
         f"/api/tables/{label_id}/0/plot",
         json={
             "plot_type": "scatter",
-            "x_column": numeric_fields[0]["name"],
-            "y_column": numeric_fields[1]["name"],
+            "x_column": numeric_indices[0],
+            "y_column": numeric_indices[1],
         },
     )
     assert resp.status_code == 200
@@ -125,16 +135,17 @@ def test_heatmap_plot(client, table_character_xml, table_character_tab):
     label_id = _upload_label(client, table_character_xml, table_character_tab)
 
     meta = client.get(f"/api/tables/{label_id}/0").json()
-    numeric_fields = [f for f in meta["fields"] if "Real" in f["data_type"] or "Integer" in f["data_type"]]
-    if len(numeric_fields) < 2:
+    all_fields = meta["fields"]
+    numeric_indices = [i for i, f in enumerate(all_fields) if "Real" in f["data_type"] or "Integer" in f["data_type"]]
+    if len(numeric_indices) < 2:
         return
 
     resp = client.post(
         f"/api/tables/{label_id}/0/plot",
         json={
             "plot_type": "heatmap",
-            "x_column": numeric_fields[0]["name"],
-            "y_column": numeric_fields[1]["name"],
+            "x_column": numeric_indices[0],
+            "y_column": numeric_indices[1],
         },
     )
     assert resp.status_code == 200
@@ -149,3 +160,39 @@ def test_plot_missing_columns(client, table_character_xml, table_character_tab):
         json={"plot_type": "histogram"},
     )
     assert resp.status_code == 400
+
+
+def test_duplicate_column_names(client, table_dup_cols_xml, table_dup_cols_csv):
+    """Test that tables with duplicate column names work correctly."""
+    label_id = _upload_label(client, table_dup_cols_xml, table_dup_cols_csv)
+
+    # Metadata should list all fields including duplicates
+    meta = client.get(f"/api/tables/{label_id}/0").json()
+    assert meta["record_count"] > 0
+    assert len(meta["fields"]) == 11
+    # There should be multiple fields named "Voltage count"
+    vc_fields = [f for f in meta["fields"] if f["name"] == "Voltage count"]
+    assert len(vc_fields) == 10
+
+    # Data should return all 11 columns per row as positional arrays
+    resp = client.get(f"/api/tables/{label_id}/0/data?offset=0&limit=5")
+    assert resp.status_code == 200
+    body = resp.json()
+    assert len(body["columns"]) == 11
+    for row in body["data"]:
+        assert isinstance(row, list)
+        assert len(row) == 11
+
+    # Plotting by column index should work with duplicate names
+    resp = client.post(
+        f"/api/tables/{label_id}/0/plot",
+        json={"plot_type": "histogram", "x_column": 1},
+    )
+    assert resp.status_code == 200
+
+    # Different column indices with same name should give different data
+    resp2 = client.post(
+        f"/api/tables/{label_id}/0/plot",
+        json={"plot_type": "histogram", "x_column": 5},
+    )
+    assert resp2.status_code == 200
