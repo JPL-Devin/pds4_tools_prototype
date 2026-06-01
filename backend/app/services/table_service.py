@@ -46,8 +46,8 @@ def compute_line_plot(
     y_name: str,
 ) -> dict[str, Any]:
     """Compute line plot data for two columns."""
-    x_vals = _extract_numeric(data, x_index)
-    y_vals = _extract_numeric(data, y_index)
+    x_vals = _extract_values(data, x_index)
+    y_vals = _extract_values(data, y_index)
 
     if not x_vals or not y_vals:
         return {"data": [], "layout": {}}
@@ -82,8 +82,8 @@ def compute_scatter_plot(
     color_name: str | None = None,
 ) -> dict[str, Any]:
     """Compute scatter plot data for two columns."""
-    x_vals = _extract_numeric(data, x_index)
-    y_vals = _extract_numeric(data, y_index)
+    x_vals = _extract_values(data, x_index)
+    y_vals = _extract_values(data, y_index)
 
     if not x_vals or not y_vals:
         return {"data": [], "layout": {}}
@@ -176,4 +176,26 @@ def _extract_numeric(data: list[list[Any]], column_index: int) -> list[float]:
                 values.append(fval)
         except (ValueError, TypeError):
             continue
+    return values
+
+
+def _extract_values(data: list[list[Any]], column_index: int) -> list[Any]:
+    """Extract values from a column, keeping original types (string, numeric, etc.)."""
+    values: list[Any] = []
+    for row in data:
+        if column_index >= len(row):
+            continue
+        val = row[column_index]
+        if val is None:
+            continue
+        # Try numeric first
+        try:
+            fval = float(val)
+            if math.isfinite(fval):
+                values.append(fval)
+                continue
+        except (ValueError, TypeError):
+            pass
+        # Keep as string (e.g. datetime values)
+        values.append(str(val).strip())
     return values

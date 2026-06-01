@@ -66,6 +66,16 @@ export default function PlotPanel({
           field.data_type.includes("Integer"),
       ) ?? [];
 
+  const xAxisFields: { field: FieldInfo; index: number }[] =
+    meta?.fields
+      .map((f, i) => ({ field: f, index: i }))
+      .filter(
+        ({ field }) =>
+          field.data_type.includes("Real") ||
+          field.data_type.includes("Integer") ||
+          field.data_type.includes("Date"),
+      ) ?? [];
+
   const needsY = plotType !== "histogram";
 
   const handlePlot = async () => {
@@ -99,8 +109,10 @@ export default function PlotPanel({
     : { paper: "#FFFFFF", plot: "#F9FAFB", font: "#374151", grid: "#E5E7EB", zero: "#D1D5DB" };
 
   const fieldLabel = (f: FieldInfo, idx: number): string => {
-    const dupCount = meta?.fields.filter((ff) => ff.name === f.name).length ?? 1;
-    const suffix = dupCount > 1 ? ` [${idx + 1}]` : "";
+    const allFields = meta?.fields ?? [];
+    const dupCount = allFields.filter((ff) => ff.name === f.name).length;
+    const occurrence = allFields.slice(0, idx + 1).filter((ff) => ff.name === f.name).length;
+    const suffix = dupCount > 1 ? ` [${occurrence}]` : "";
     return `${f.name}${suffix}${f.unit ? ` (${f.unit})` : ""}`;
   };
 
@@ -151,7 +163,7 @@ export default function PlotPanel({
               }
             >
               <option value="">Select...</option>
-              {numericFields.map(({ field, index }) => (
+              {xAxisFields.map(({ field, index }) => (
                 <option key={index} value={index}>
                   {fieldLabel(field, index)}
                 </option>

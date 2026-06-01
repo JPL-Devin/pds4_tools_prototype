@@ -137,7 +137,7 @@ export default function TableViewer({
                     {col}
                     {tableData.columns.filter((c) => c === col).length > 1 && (
                       <span className="text-gray-500 dark:text-nasa-gray-400 ml-1 text-[10px] normal-case">
-                        [{colIdx + 1}]
+                        [{tableData.columns.slice(0, colIdx + 1).filter((c) => c === col).length}]
                       </span>
                     )}
                     {sortColIdx === colIdx && (
