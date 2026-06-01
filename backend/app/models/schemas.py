@@ -72,6 +72,7 @@ class PlotSpec(BaseModel):
     color_column: int | None = Field(default=None, description="Column index for color")
     nbins: int | None = Field(default=None, description="Number of bins for histogram")
     title: str | None = None
+    trace_color: str | None = Field(default=None, description="Hex color for the trace")
 
 
 class PlotDataResponse(BaseModel):

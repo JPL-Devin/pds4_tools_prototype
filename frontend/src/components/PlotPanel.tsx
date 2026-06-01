@@ -36,6 +36,7 @@ export default function PlotPanel({
   const [plotData, setPlotData] = useState<PlotDataResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [traceColor, setTraceColor] = useState("#1052A5");
   const { theme } = useTheme();
 
   useEffect(() => {
@@ -66,7 +67,7 @@ export default function PlotPanel({
           field.data_type.includes("Integer"),
       ) ?? [];
 
-  const xAxisFields: { field: FieldInfo; index: number }[] =
+  const plottableFields: { field: FieldInfo; index: number }[] =
     meta?.fields
       .map((f, i) => ({ field: f, index: i }))
       .filter(
@@ -93,6 +94,7 @@ export default function PlotPanel({
           ? { color_column: colorColIdx as number }
           : {}),
         ...(plotType === "histogram" ? { nbins } : {}),
+        trace_color: traceColor,
       };
       const result = await getPlotData(labelId, structureIndex, spec);
       setPlotData(result);
@@ -163,7 +165,7 @@ export default function PlotPanel({
               }
             >
               <option value="">Select...</option>
-              {xAxisFields.map(({ field, index }) => (
+              {plottableFields.map(({ field, index }) => (
                 <option key={index} value={index}>
                   {fieldLabel(field, index)}
                 </option>
@@ -187,7 +189,7 @@ export default function PlotPanel({
                 }
               >
                 <option value="">Select...</option>
-                {numericFields.map(({ field, index }) => (
+                {plottableFields.map(({ field, index }) => (
                   <option key={index} value={index}>
                     {fieldLabel(field, index)}
                   </option>
@@ -237,6 +239,31 @@ export default function PlotPanel({
               />
             </div>
           )}
+
+          {/* Trace color */}
+          <div>
+            <label className="block text-xs text-gray-600 dark:text-nasa-gray-300 mb-1.5 font-medium">
+              Color
+            </label>
+            <div className="flex items-center gap-1.5">
+              <input
+                type="color"
+                className="w-8 h-8 rounded border border-gray-300 dark:border-nasa-gray-600 cursor-pointer bg-transparent p-0.5"
+                value={traceColor}
+                onChange={(e) => setTraceColor(e.target.value)}
+                title="Choose trace color"
+              />
+              <input
+                type="text"
+                className="input-field text-sm w-20 font-mono"
+                value={traceColor}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  if (/^#[0-9A-Fa-f]{0,6}$/.test(v)) setTraceColor(v);
+                }}
+              />
+            </div>
+          </div>
 
           <button
             className="btn-primary text-sm"

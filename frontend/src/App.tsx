@@ -18,10 +18,12 @@ export default function App() {
     useState<StructureSummary | null>(null);
   const [activeTab, setActiveTab] = useState<Tab>("table");
   const [inputMode, setInputMode] = useState<InputMode>("browse");
+  const [fileBrowserCollapsed, setFileBrowserCollapsed] = useState(false);
   const { theme, toggleTheme } = useTheme();
 
   const handleLabelLoaded = (result: LabelUploadResponse) => {
     setLabel(result);
+    setFileBrowserCollapsed(true);
     const first = result.structures[0] ?? null;
     setSelectedStructure(first);
     if (first) {
@@ -126,18 +128,41 @@ export default function App() {
             </button>
           </div>
 
+          {/* Selected file indicator */}
+          {label && fileBrowserCollapsed && (
+            <div className="px-3 py-2 border-b border-gray-200 dark:border-nasa-gray-700/40 bg-nasa-blue/5 dark:bg-nasa-blue/10">
+              <div className="flex items-center gap-2">
+                <svg className="w-3.5 h-3.5 text-nasa-blue flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                </svg>
+                <span className="text-xs text-gray-800 dark:text-nasa-gray-100 font-medium truncate flex-1">
+                  {label.filename}
+                </span>
+                <button
+                  className="text-[10px] text-gray-500 dark:text-nasa-gray-400 hover:text-gray-700 dark:hover:text-nasa-gray-200 transition-colors flex-shrink-0"
+                  onClick={() => setFileBrowserCollapsed(false)}
+                  title="Show file browser"
+                >
+                  Change
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Input content */}
-          <div className="p-4 border-b border-gray-200 dark:border-nasa-gray-700/40 overflow-auto flex-shrink-0" style={{ maxHeight: label ? "50%" : "100%" }}>
-            {inputMode === "browse" ? (
-              <FileBrowser onLabelOpened={handleLabelLoaded} />
-            ) : (
-              <FileUpload onSuccess={handleLabelLoaded} />
-            )}
-          </div>
+          {!fileBrowserCollapsed && (
+            <div className="p-3 border-b border-gray-200 dark:border-nasa-gray-700/40 overflow-auto flex-shrink-0" style={{ maxHeight: label ? "50%" : "100%" }}>
+              {inputMode === "browse" ? (
+                <FileBrowser onLabelOpened={handleLabelLoaded} />
+              ) : (
+                <FileUpload onSuccess={handleLabelLoaded} />
+              )}
+            </div>
+          )}
 
           {/* Structures list */}
           {label && (
-            <div className="flex-1 overflow-auto p-5">
+            <div className="flex-1 overflow-auto p-4">
               <StructureList
                 structures={label.structures}
                 selected={selectedStructure}

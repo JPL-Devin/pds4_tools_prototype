@@ -122,6 +122,7 @@ export interface PlotSpec {
   color_column?: number;
   nbins?: number;
   title?: string;
+  trace_color?: string;
 }
 
 export interface PlotDataResponse {

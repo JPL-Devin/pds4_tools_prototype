@@ -12,6 +12,7 @@ def compute_histogram(
     column_index: int,
     column_name: str,
     nbins: int = 30,
+    trace_color: str | None = None,
 ) -> dict[str, Any]:
     """Compute histogram data for a numeric column."""
     values = _extract_numeric(data, column_index)
@@ -28,7 +29,7 @@ def compute_histogram(
             "type": "histogram",
             "x": arr.tolist(),
             "nbinsx": nbins,
-            "marker": {"color": "#1052A5"},
+            "marker": {"color": trace_color or "#1052A5"},
         }],
         "layout": {
             "title": f"Histogram of {column_name}",
@@ -44,6 +45,7 @@ def compute_line_plot(
     y_index: int,
     x_name: str,
     y_name: str,
+    trace_color: str | None = None,
 ) -> dict[str, Any]:
     """Compute line plot data for two columns."""
     x_vals = _extract_values(data, x_index)
@@ -62,7 +64,7 @@ def compute_line_plot(
             "mode": "lines",
             "x": x_vals,
             "y": y_vals,
-            "line": {"color": "#1052A5", "width": 2},
+            "line": {"color": trace_color or "#1052A5", "width": 2},
         }],
         "layout": {
             "title": f"{y_name} vs {x_name}",
@@ -80,6 +82,7 @@ def compute_scatter_plot(
     y_name: str,
     color_index: int | None = None,
     color_name: str | None = None,
+    trace_color: str | None = None,
 ) -> dict[str, Any]:
     """Compute scatter plot data for two columns."""
     x_vals = _extract_values(data, x_index)
@@ -97,7 +100,7 @@ def compute_scatter_plot(
         "mode": "markers",
         "x": x_vals,
         "y": y_vals,
-        "marker": {"color": "#1052A5", "size": 5, "opacity": 0.7},
+        "marker": {"color": trace_color or "#1052A5", "size": 5, "opacity": 0.7},
     }
 
     if color_index is not None:

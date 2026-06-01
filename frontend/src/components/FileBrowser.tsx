@@ -201,7 +201,7 @@ export default function FileBrowser({ onLabelOpened }: FileBrowserProps) {
             <input
               ref={pathInputRef}
               type="text"
-              className="input-field text-sm flex-1 font-mono py-1.5"
+              className="input-field text-xs flex-1 font-mono py-1"
               value={pathInput}
               onChange={(e) => setPathInput(e.target.value)}
               onKeyDown={(e) => {
@@ -212,7 +212,7 @@ export default function FileBrowser({ onLabelOpened }: FileBrowserProps) {
               placeholder="Enter path to directory or label file..."
             />
             <button
-              className="btn-primary text-xs py-1.5 px-2.5 flex-shrink-0"
+              className="btn-primary text-[11px] py-1 px-2 flex-shrink-0"
               onMouseDown={(e) => {
                 e.preventDefault();
                 handlePathSubmit();
@@ -223,7 +223,7 @@ export default function FileBrowser({ onLabelOpened }: FileBrowserProps) {
           </div>
         ) : (
           <div
-            className="flex items-center gap-1 text-sm overflow-x-auto pb-1 cursor-text group rounded-md px-1.5 py-1 -mx-1.5 hover:bg-gray-100 dark:hover:bg-nasa-gray-800/40 transition-colors"
+            className="flex items-center gap-0.5 text-xs overflow-x-auto pb-0.5 cursor-text group rounded px-1 py-0.5 -mx-1 hover:bg-gray-100 dark:hover:bg-nasa-gray-800/40 transition-colors"
             onClick={startEditingPath}
             title="Click to edit path"
           >
@@ -238,7 +238,7 @@ export default function FileBrowser({ onLabelOpened }: FileBrowserProps) {
               {activeSource === "s3" ? "S3" : "/"}
             </button>
             {breadcrumbs.map((crumb, i) => (
-              <span key={crumb.path} className="flex items-center gap-1 flex-shrink-0">
+              <span key={crumb.path} className="flex items-center gap-0.5 flex-shrink-0">
                 <span className="text-gray-400 dark:text-nasa-gray-500">/</span>
                 {i < breadcrumbs.length - 1 ? (
                   <button
@@ -257,8 +257,8 @@ export default function FileBrowser({ onLabelOpened }: FileBrowserProps) {
                 )}
               </span>
             ))}
-            <span className="ml-auto text-gray-400 dark:text-nasa-gray-500 opacity-0 group-hover:opacity-100 transition-opacity text-xs flex-shrink-0">
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <span className="ml-auto text-gray-400 dark:text-nasa-gray-500 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Z" />
               </svg>
             </span>
@@ -290,10 +290,10 @@ export default function FileBrowser({ onLabelOpened }: FileBrowserProps) {
             {/* Parent directory */}
             {browseData?.parent_path && (
               <button
-                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-gray-50 dark:hover:bg-nasa-gray-800/40 transition-colors border-b border-gray-100 dark:border-nasa-gray-700/30"
+                className="w-full flex items-center gap-2 px-3 py-1.5 text-xs hover:bg-gray-50 dark:hover:bg-nasa-gray-800/40 transition-colors border-b border-gray-100 dark:border-nasa-gray-700/30"
                 onClick={handleNavigateUp}
               >
-                <span className="w-5 h-5 flex items-center justify-center text-gray-500 dark:text-nasa-gray-300">
+                <span className="w-4 h-4 flex items-center justify-center text-gray-500 dark:text-nasa-gray-300 text-[11px]">
                   ..
                 </span>
                 <span className="text-gray-500 dark:text-nasa-gray-300">
@@ -306,7 +306,7 @@ export default function FileBrowser({ onLabelOpened }: FileBrowserProps) {
             {browseData?.entries.map((entry) => (
               <div
                 key={entry.path}
-                className={`flex items-center gap-3 px-4 py-2.5 text-sm border-b border-gray-100 dark:border-nasa-gray-700/20 last:border-0 transition-colors ${
+                className={`flex items-center gap-2 px-3 py-1.5 text-xs border-b border-gray-100 dark:border-nasa-gray-700/20 last:border-0 transition-colors ${
                   entry.is_dir
                     ? "cursor-pointer hover:bg-gray-50 dark:hover:bg-nasa-gray-800/40"
                     : entry.is_label
@@ -317,7 +317,7 @@ export default function FileBrowser({ onLabelOpened }: FileBrowserProps) {
               >
                 {/* Icon */}
                 <span
-                  className={`w-5 h-5 flex items-center justify-center flex-shrink-0 text-xs ${
+                  className={`w-4 h-4 flex items-center justify-center flex-shrink-0 text-[11px] ${
                     entry.is_dir
                       ? "text-yellow-500 dark:text-yellow-400"
                       : entry.is_label
@@ -343,7 +343,7 @@ export default function FileBrowser({ onLabelOpened }: FileBrowserProps) {
 
                 {/* Size */}
                 {!entry.is_dir && entry.size != null && (
-                  <span className="text-xs text-gray-500 dark:text-nasa-gray-400 flex-shrink-0">
+                  <span className="text-[10px] text-gray-500 dark:text-nasa-gray-400 flex-shrink-0">
                     {formatSize(entry.size)}
                   </span>
                 )}
@@ -351,7 +351,7 @@ export default function FileBrowser({ onLabelOpened }: FileBrowserProps) {
                 {/* Open button for labels */}
                 {entry.is_label && (
                   <button
-                    className="btn-primary text-xs py-1 px-3 flex-shrink-0"
+                    className="btn-primary text-[11px] py-0.5 px-2 flex-shrink-0"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleOpenLabel(entry);
@@ -365,7 +365,7 @@ export default function FileBrowser({ onLabelOpened }: FileBrowserProps) {
             ))}
 
             {browseData?.entries.length === 0 && (
-              <div className="py-8 text-center text-gray-500 dark:text-nasa-gray-300 text-sm">
+              <div className="py-6 text-center text-gray-500 dark:text-nasa-gray-300 text-xs">
                 Empty directory
               </div>
             )}
@@ -380,7 +380,7 @@ export default function FileBrowser({ onLabelOpened }: FileBrowserProps) {
 
       {/* Item count */}
       {browseData && browseData.entries.length > 0 && (
-        <p className="text-xs text-gray-500 dark:text-nasa-gray-400 text-right">
+        <p className="text-[10px] text-gray-500 dark:text-nasa-gray-400 text-right">
           {browseData.entries.length} items
           {canScrollDown && " · scroll for more"}
         </p>

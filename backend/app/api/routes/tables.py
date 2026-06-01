@@ -147,13 +147,14 @@ async def create_plot(
             raise HTTPException(status_code=400, detail="x_column required for histogram")
         if spec.x_column >= field_count:
             raise HTTPException(status_code=400, detail=f"x_column index {spec.x_column} out of range")
-        result = compute_histogram(all_data, spec.x_column, col_name(spec.x_column), nbins=spec.nbins or 30)
+        result = compute_histogram(all_data, spec.x_column, col_name(spec.x_column), nbins=spec.nbins or 30, trace_color=spec.trace_color)
     elif spec.plot_type == "line":
         if spec.x_column is None or spec.y_column is None:
             raise HTTPException(status_code=400, detail="x_column and y_column required for line plot")
         result = compute_line_plot(
             all_data, spec.x_column, spec.y_column,
             col_name(spec.x_column), col_name(spec.y_column),
+            trace_color=spec.trace_color,
         )
     elif spec.plot_type == "scatter":
         if spec.x_column is None or spec.y_column is None:
@@ -162,6 +163,7 @@ async def create_plot(
             all_data, spec.x_column, spec.y_column,
             col_name(spec.x_column), col_name(spec.y_column),
             spec.color_column, col_name(spec.color_column) if spec.color_column is not None else None,
+            trace_color=spec.trace_color,
         )
     elif spec.plot_type == "heatmap":
         if spec.x_column is None or spec.y_column is None:
