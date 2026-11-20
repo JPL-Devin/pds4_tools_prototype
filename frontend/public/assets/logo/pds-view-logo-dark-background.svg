@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
+  <title id="title">PDS View logo</title>
+  <desc id="desc">A minimalist planetary data exploration icon combining a ringed planet, magnifying glass, and ascending data bars.</desc>
+  <g fill="none" stroke="#F4F7FB" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Magnifying glass / planetary body -->
+    <circle cx="470" cy="445" r="255" stroke-width="38"/>
+    <path d="M650 625 L803 778" stroke-width="64"/>
+
+    <!-- Orbital ring -->
+    <path d="M166 557
+             C225 647 430 669 630 575
+             C824 485 920 338 853 272
+             C817 237 751 238 682 267" stroke-width="34"/>
+    <path d="M244 586
+             C320 600 437 591 558 540" stroke-width="34"/>
+
+    <!-- Inner orbital accent -->
+    <path d="M318 414
+             C345 329 402 267 493 224" stroke-width="22"/>
+
+    <!-- Data bars -->
+    <path d="M351 565 L351 636" stroke-width="42"/>
+    <path d="M438 525 L438 636" stroke-width="42"/>
+    <path d="M525 477 L525 636" stroke-width="42"/>
+    <path d="M612 411 L612 636" stroke-width="42"/>
+  </g>
+  <circle cx="588" cy="311" r="26" fill="#F4F7FB"/>
+</svg>

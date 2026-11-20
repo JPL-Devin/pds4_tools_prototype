@@ -1,3 +1,4 @@
 # Preserve line-endings in test-data
 *.tab binary
 *.csv binary
+*.img binary
